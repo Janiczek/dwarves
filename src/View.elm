@@ -5,9 +5,9 @@ import Color exposing (Color)
 import Constants.View exposing (..)
 import Element as E exposing (Element)
 import Html as H exposing (Html)
-import Transform as TT
 import Types exposing (..)
 import View.Dwarf exposing (..)
+import View.Extra exposing (..)
 import View.Resource exposing (..)
 
 
@@ -36,10 +36,4 @@ viewEntities world =
     , viewResourcesText world.resources
     , viewDwarvesText world.dwarves
     ]
-        |> List.concat
-        |> C.groupTransform
-            (TT.translation
-                (minusHalfWidth + toFloat halfTileSize)
-                (minusHalfHeight + toFloat halfTileSize)
-            )
-        |> List.singleton
+        |> fixCoordinateSpace
