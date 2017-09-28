@@ -13030,6 +13030,243 @@ var _user$project$Types$Tick = {ctor: 'Tick'};
 var _user$project$Types$GeneratedInitData = function (a) {
 	return {ctor: 'GeneratedInitData', _0: a};
 };
+var _user$project$Helpers_XY$move = F2(
+	function (_p0, thing) {
+		var _p1 = _p0;
+		var _p2 = thing.position;
+		var x = _p2._0;
+		var y = _p2._1;
+		var newPosition = {
+			ctor: '_Tuple2',
+			_0: A3(_elm_lang$core$Basics$clamp, 0, _user$project$Constants_World$worldWidth - 1, x + _p1._0),
+			_1: A3(_elm_lang$core$Basics$clamp, 0, _user$project$Constants_World$worldHeight - 1, y + _p1._1)
+		};
+		return _elm_lang$core$Native_Utils.update(
+			thing,
+			{position: newPosition});
+	});
+var _user$project$Helpers_XY$toDelta = function (order) {
+	var _p3 = order;
+	switch (_p3.ctor) {
+		case 'LT':
+			return -1;
+		case 'EQ':
+			return 0;
+		default:
+			return 1;
+	}
+};
+var _user$project$Helpers_XY$deltaMovingCloserTo = F2(
+	function (_p5, _p4) {
+		var _p6 = _p5;
+		var _p7 = _p4;
+		return {
+			ctor: '_Tuple2',
+			_0: _user$project$Helpers_XY$toDelta(
+				A2(_elm_lang$core$Basics$compare, _p6._0, _p7._0)),
+			_1: _user$project$Helpers_XY$toDelta(
+				A2(_elm_lang$core$Basics$compare, _p6._1, _p7._1))
+		};
+	});
+var _user$project$Helpers_XY$clampPosition = function (_p8) {
+	var _p9 = _p8;
+	return {
+		ctor: '_Tuple2',
+		_0: A3(_elm_lang$core$Basics$clamp, 0, _user$project$Constants_World$worldWidth - 1, _p9._0),
+		_1: A3(_elm_lang$core$Basics$clamp, 0, _user$project$Constants_World$worldHeight - 1, _p9._1)
+	};
+};
+var _user$project$Helpers_XY$isNextTo = F2(
+	function (_p11, _p10) {
+		var _p12 = _p11;
+		var _p13 = _p10;
+		return (_elm_lang$core$Native_Utils.cmp(
+			_elm_lang$core$Basics$abs(_p12._0 - _p13._0),
+			2) < 0) && (_elm_lang$core$Native_Utils.cmp(
+			_elm_lang$core$Basics$abs(_p12._1 - _p13._1),
+			2) < 0);
+	});
+var _user$project$Helpers_XY$distance = F2(
+	function (_p15, _p14) {
+		var _p16 = _p15;
+		var _p17 = _p14;
+		return _elm_lang$core$Basics$sqrt(
+			_elm_lang$core$Basics$toFloat(
+				Math.pow(_p16._0 - _p17._0, 2) + Math.pow(_p16._1 - _p17._1, 2)));
+	});
+var _user$project$Helpers_XY$moveByDelta = F2(
+	function (_p18, thing) {
+		var _p19 = _p18;
+		var _p20 = thing.position;
+		var x = _p20._0;
+		var y = _p20._1;
+		return _elm_lang$core$Native_Utils.update(
+			thing,
+			{
+				position: _user$project$Helpers_XY$clampPosition(
+					{ctor: '_Tuple2', _0: x + _p19._0, _1: y + _p19._1})
+			});
+	});
+var _user$project$Helpers_WorldQuery$dwarfClosestToDwarf = F2(
+	function (dwarf, world) {
+		return _elm_lang$core$List$head(
+			A2(
+				_elm_lang$core$List$filter,
+				function (d) {
+					return !_elm_lang$core$Native_Utils.eq(d.id, dwarf.id);
+				},
+				A2(
+					_elm_lang$core$List$sortBy,
+					function (d) {
+						return A2(_user$project$Helpers_XY$distance, d.position, dwarf.position);
+					},
+					world.dwarves)));
+	});
+var _user$project$Helpers_WorldQuery$resourceTouchingDwarf = F3(
+	function (kind, dwarf, world) {
+		return _elm_lang$core$List$head(
+			A2(
+				_elm_lang$core$List$filter,
+				function (resource) {
+					return A2(_user$project$Helpers_XY$isNextTo, resource.position, dwarf.position);
+				},
+				A2(
+					_elm_lang$core$List$filter,
+					function (resource) {
+						return _elm_lang$core$Native_Utils.eq(resource.kind, kind);
+					},
+					world.resources)));
+	});
+var _user$project$Helpers_WorldQuery$isDwarfNextTo = F3(
+	function (kind, dwarf, world) {
+		return !_elm_lang$core$Native_Utils.eq(
+			A3(_user$project$Helpers_WorldQuery$resourceTouchingDwarf, kind, dwarf, world),
+			_elm_lang$core$Maybe$Nothing);
+	});
+var _user$project$Helpers_WorldQuery$resourceClosestToDwarf = F3(
+	function (kind, dwarf, world) {
+		return _elm_lang$core$List$head(
+			A2(
+				_elm_lang$core$List$sortBy,
+				function (resource) {
+					return A2(_user$project$Helpers_XY$distance, resource.position, dwarf.position);
+				},
+				A2(
+					_elm_lang$core$List$filter,
+					function (resource) {
+						return _elm_lang$core$Native_Utils.eq(resource.kind, kind);
+					},
+					world.resources)));
+	});
+var _user$project$ActOnGoal$moveRandomly = function (dwarf) {
+	return A2(
+		_elm_lang$core$Random$map,
+		function (xyMove) {
+			return {
+				ctor: '::',
+				_0: A2(_user$project$Types$MoveDwarf, dwarf.id, xyMove),
+				_1: {ctor: '[]'}
+			};
+		},
+		A3(
+			_elm_lang$core$Random$map2,
+			F2(
+				function (v0, v1) {
+					return {ctor: '_Tuple2', _0: v0, _1: v1};
+				}),
+			A2(_elm_lang$core$Random$int, -1, 1),
+			A2(_elm_lang$core$Random$int, -1, 1)));
+};
+var _user$project$ActOnGoal$moveTowardsAndPunchDwarf = F2(
+	function (dwarf, world) {
+		return _elm_community$random_extra$Random_Extra$constant(
+			A2(
+				_elm_lang$core$Maybe$withDefault,
+				{ctor: '[]'},
+				A2(
+					_elm_lang$core$Maybe$map,
+					function (toBePunched) {
+						return A2(_user$project$Helpers_XY$isNextTo, toBePunched.position, dwarf.position) ? {
+							ctor: '::',
+							_0: A2(_user$project$Types$PunchDwarf, dwarf.id, toBePunched.id),
+							_1: {ctor: '[]'}
+						} : {
+							ctor: '::',
+							_0: A2(
+								_user$project$Types$MoveDwarf,
+								dwarf.id,
+								A2(_user$project$Helpers_XY$deltaMovingCloserTo, toBePunched.position, dwarf.position)),
+							_1: {ctor: '[]'}
+						};
+					},
+					A2(_user$project$Helpers_WorldQuery$dwarfClosestToDwarf, dwarf, world))));
+	});
+var _user$project$ActOnGoal$decrementClosest = F3(
+	function (kind, dwarf, world) {
+		return _elm_community$random_extra$Random_Extra$constant(
+			A2(
+				_elm_lang$core$Maybe$withDefault,
+				{ctor: '[]'},
+				A2(
+					_elm_lang$core$Maybe$map,
+					function (res) {
+						return {
+							ctor: '::',
+							_0: A2(_user$project$Types$DecrementResource, res.id, 1),
+							_1: {ctor: '[]'}
+						};
+					},
+					A3(_user$project$Helpers_WorldQuery$resourceTouchingDwarf, kind, dwarf, world))));
+	});
+var _user$project$ActOnGoal$moveTowardsResource = F3(
+	function (kind, dwarf, world) {
+		var _p0 = A3(_user$project$Helpers_WorldQuery$resourceClosestToDwarf, kind, dwarf, world);
+		if (_p0.ctor === 'Nothing') {
+			return _user$project$ActOnGoal$moveRandomly(dwarf);
+		} else {
+			return _elm_community$random_extra$Random_Extra$constant(
+				{
+					ctor: '::',
+					_0: A2(
+						_user$project$Types$MoveDwarf,
+						dwarf.id,
+						A2(_user$project$Helpers_XY$deltaMovingCloserTo, _p0._0.position, dwarf.position)),
+					_1: {ctor: '[]'}
+				});
+		}
+	});
+var _user$project$ActOnGoal$doNothing = _elm_community$random_extra$Random_Extra$constant(
+	{ctor: '[]'});
+var _user$project$ActOnGoal$actOnGoal = F2(
+	function (dwarf, world) {
+		var _p1 = dwarf.goal;
+		switch (_p1.ctor) {
+			case 'Sleep':
+				return _user$project$ActOnGoal$doNothing;
+			case 'FindFood':
+				return A3(_user$project$ActOnGoal$moveTowardsResource, _user$project$Types$Food, dwarf, world);
+			case 'FindBeer':
+				return A3(_user$project$ActOnGoal$moveTowardsResource, _user$project$Types$Beer, dwarf, world);
+			case 'Eat':
+				return A3(_user$project$ActOnGoal$decrementClosest, _user$project$Types$Food, dwarf, world);
+			case 'Drink':
+				return A3(_user$project$ActOnGoal$decrementClosest, _user$project$Types$Beer, dwarf, world);
+			case 'Rage':
+				return A2(_user$project$ActOnGoal$moveTowardsAndPunchDwarf, dwarf, world);
+			default:
+				return _user$project$ActOnGoal$moveRandomly(dwarf);
+		}
+	});
+var _user$project$Constants_Goal$thresholds = {sleep: 24, findFood: 24, findBeer: 30, eat: 12, drink: 8, rage: 12, idle: 24};
+var _user$project$Constants_View$tileSize = 32;
+var _user$project$Constants_View$halfTileSize = (_user$project$Constants_View$tileSize / 2) | 0;
+var _user$project$Constants_View$worldWidthPx = _user$project$Constants_World$worldWidth * _user$project$Constants_View$tileSize;
+var _user$project$Constants_View$minusHalfWidth = _elm_lang$core$Basics$toFloat(
+	_elm_lang$core$Basics$negate(_user$project$Constants_View$worldWidthPx)) / 2;
+var _user$project$Constants_View$worldHeightPx = _user$project$Constants_World$worldHeight * _user$project$Constants_View$tileSize;
+var _user$project$Constants_View$minusHalfHeight = _elm_lang$core$Basics$toFloat(
+	_elm_lang$core$Basics$negate(_user$project$Constants_View$worldHeightPx)) / 2;
+var _user$project$Constants_View$circleSize = _elm_lang$core$Basics$toFloat(_user$project$Constants_View$tileSize) / 2;
 var _user$project$Generator_Common$position = A3(
 	_elm_lang$core$Random$map2,
 	F2(
@@ -13085,243 +13322,72 @@ var _user$project$Generator_Resource$resourceKind = _elm_community$random_extra$
 			}
 		}));
 var _user$project$Generator_Resource$resource = A4(_elm_lang$core$Random$map3, _user$project$Types$Resource, _user$project$Generator_Common$position, _user$project$Generator_Resource$resourceKind, _user$project$Generator_Resource$resourceAmount);
-var _user$project$Cmd$genInitData = function (counts) {
-	var resources = A2(_elm_lang$core$Random$list, counts.resources, _user$project$Generator_Resource$resource);
-	var dwarves = A2(_elm_lang$core$Random$list, counts.dwarves, _user$project$Generator_Dwarf$dwarf);
-	return A2(
-		_elm_lang$core$Random$generate,
-		_user$project$Types$GeneratedInitData,
-		A3(
-			_elm_lang$core$Random$map2,
-			F2(
-				function (v0, v1) {
-					return {ctor: '_Tuple2', _0: v0, _1: v1};
-				}),
-			dwarves,
-			resources));
-};
-var _user$project$Constants_Update$thresholds = {sleep: 24, findFood: 24, findBeer: 30, eat: 12, drink: 8, rage: 12, idle: 24};
-var _user$project$Constants_View$tileSize = 32;
-var _user$project$Constants_View$halfTileSize = (_user$project$Constants_View$tileSize / 2) | 0;
-var _user$project$Constants_View$worldWidthPx = _user$project$Constants_World$worldWidth * _user$project$Constants_View$tileSize;
-var _user$project$Constants_View$minusHalfWidth = _elm_lang$core$Basics$toFloat(
-	_elm_lang$core$Basics$negate(_user$project$Constants_View$worldWidthPx)) / 2;
-var _user$project$Constants_View$worldHeightPx = _user$project$Constants_World$worldHeight * _user$project$Constants_View$tileSize;
-var _user$project$Constants_View$minusHalfHeight = _elm_lang$core$Basics$toFloat(
-	_elm_lang$core$Basics$negate(_user$project$Constants_View$worldHeightPx)) / 2;
-var _user$project$Constants_View$circleSize = _elm_lang$core$Basics$toFloat(_user$project$Constants_View$tileSize) / 2;
-var _user$project$Update_Extra$moveRandomly = function (dwarf) {
-	return A2(
-		_elm_lang$core$Random$map,
-		function (xyMove) {
-			return {
-				ctor: '::',
-				_0: A2(_user$project$Types$MoveDwarf, dwarf.id, xyMove),
-				_1: {ctor: '[]'}
-			};
-		},
-		A3(
-			_elm_lang$core$Random$map2,
-			F2(
-				function (v0, v1) {
-					return {ctor: '_Tuple2', _0: v0, _1: v1};
-				}),
-			A2(_elm_lang$core$Random$int, -1, 1),
-			A2(_elm_lang$core$Random$int, -1, 1)));
-};
-var _user$project$Update_Extra$toDelta = function (order) {
-	var _p0 = order;
-	switch (_p0.ctor) {
-		case 'LT':
-			return -1;
-		case 'EQ':
-			return 0;
-		default:
-			return 1;
-	}
-};
-var _user$project$Update_Extra$moveCloserTo = F2(
-	function (_p2, _p1) {
-		var _p3 = _p2;
-		var _p4 = _p1;
-		return {
-			ctor: '_Tuple2',
-			_0: _user$project$Update_Extra$toDelta(
-				A2(_elm_lang$core$Basics$compare, _p3._0, _p4._0)),
-			_1: _user$project$Update_Extra$toDelta(
-				A2(_elm_lang$core$Basics$compare, _p3._1, _p4._1))
-		};
+var _user$project$Helpers_World$decrementHitpoints = F2(
+	function (amount, dwarf) {
+		return (_elm_lang$core$Native_Utils.cmp(dwarf.hitpoints, amount) < 1) ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(
+			_elm_lang$core$Native_Utils.update(
+				dwarf,
+				{hitpoints: dwarf.hitpoints - amount}));
 	});
-var _user$project$Update_Extra$distance = F2(
-	function (_p6, _p5) {
-		var _p7 = _p6;
-		var _p8 = _p5;
-		return _elm_lang$core$Basics$sqrt(
-			_elm_lang$core$Basics$toFloat(
-				Math.pow(_p7._0 - _p8._0, 2) + Math.pow(_p7._1 - _p8._1, 2)));
-	});
-var _user$project$Update_Extra$dwarfClosestToDwarf = F2(
-	function (dwarf, world) {
-		return _elm_lang$core$List$head(
-			A2(
-				_elm_lang$core$List$filter,
-				function (d) {
-					return !_elm_lang$core$Native_Utils.eq(d.id, dwarf.id);
-				},
-				A2(
-					_elm_lang$core$List$sortBy,
-					function (d) {
-						return A2(_user$project$Update_Extra$distance, d.position, dwarf.position);
-					},
-					world.dwarves)));
-	});
-var _user$project$Update_Extra$isNextTo = F2(
-	function (_p10, _p9) {
-		var _p11 = _p10;
-		var _p12 = _p9;
-		return (_elm_lang$core$Native_Utils.cmp(
-			_elm_lang$core$Basics$abs(_p11._0 - _p12._0),
-			2) < 0) && (_elm_lang$core$Native_Utils.cmp(
-			_elm_lang$core$Basics$abs(_p11._1 - _p12._1),
-			2) < 0);
-	});
-var _user$project$Update_Extra$moveTowardsAndPunchDwarf = F2(
-	function (dwarf, world) {
-		return _elm_community$random_extra$Random_Extra$constant(
-			A2(
-				_elm_lang$core$Maybe$withDefault,
-				{ctor: '[]'},
-				A2(
-					_elm_lang$core$Maybe$map,
-					function (toBePunched) {
-						return A2(_user$project$Update_Extra$isNextTo, toBePunched.position, dwarf.position) ? {
-							ctor: '::',
-							_0: A2(_user$project$Types$PunchDwarf, dwarf.id, toBePunched.id),
-							_1: {ctor: '[]'}
-						} : {
-							ctor: '::',
-							_0: A2(
-								_user$project$Types$MoveDwarf,
-								dwarf.id,
-								A2(_user$project$Update_Extra$moveCloserTo, toBePunched.position, dwarf.position)),
-							_1: {ctor: '[]'}
-						};
-					},
-					A2(_user$project$Update_Extra$dwarfClosestToDwarf, dwarf, world))));
-	});
-var _user$project$Update_Extra$resourceClosestToDwarf = F3(
-	function (kind, dwarf, world) {
-		return _elm_lang$core$List$head(
-			A2(
-				_elm_lang$core$List$sortBy,
-				function (resource) {
-					return A2(_user$project$Update_Extra$distance, resource.position, dwarf.position);
-				},
-				A2(
-					_elm_lang$core$List$filter,
-					function (resource) {
-						return _elm_lang$core$Native_Utils.eq(resource.kind, kind);
-					},
-					world.resources)));
-	});
-var _user$project$Update_Extra$moveTowardsResource = F3(
-	function (kind, dwarf, world) {
-		var _p13 = A3(_user$project$Update_Extra$resourceClosestToDwarf, kind, dwarf, world);
-		if (_p13.ctor === 'Nothing') {
-			return _user$project$Update_Extra$moveRandomly(dwarf);
-		} else {
-			return _elm_community$random_extra$Random_Extra$constant(
-				{
-					ctor: '::',
-					_0: A2(
-						_user$project$Types$MoveDwarf,
-						dwarf.id,
-						A2(_user$project$Update_Extra$moveCloserTo, _p13._0.position, dwarf.position)),
-					_1: {ctor: '[]'}
-				});
-		}
-	});
-var _user$project$Update_Extra$resourceTouchingDwarf = F3(
-	function (kind, dwarf, world) {
-		return _elm_lang$core$List$head(
-			A2(
-				_elm_lang$core$List$filter,
-				function (resource) {
-					return A2(_user$project$Update_Extra$isNextTo, resource.position, dwarf.position);
-				},
-				A2(
-					_elm_lang$core$List$filter,
-					function (resource) {
-						return _elm_lang$core$Native_Utils.eq(resource.kind, kind);
-					},
-					world.resources)));
-	});
-var _user$project$Update_Extra$isDwarfNextTo = F3(
-	function (kind, dwarf, world) {
-		return !_elm_lang$core$Native_Utils.eq(
-			A3(_user$project$Update_Extra$resourceTouchingDwarf, kind, dwarf, world),
-			_elm_lang$core$Maybe$Nothing);
-	});
-var _user$project$Update_Extra$decrementClosest = F3(
-	function (kind, dwarf, world) {
-		return _elm_community$random_extra$Random_Extra$constant(
-			A2(
-				_elm_lang$core$Maybe$withDefault,
-				{ctor: '[]'},
-				A2(
-					_elm_lang$core$Maybe$map,
-					function (res) {
-						return {
-							ctor: '::',
-							_0: A2(_user$project$Types$DecrementResource, res.id, 1),
-							_1: {ctor: '[]'}
-						};
-					},
-					A3(_user$project$Update_Extra$resourceTouchingDwarf, kind, dwarf, world))));
-	});
-var _user$project$Update_Extra$clampPosition = function (_p14) {
-	var _p15 = _p14;
-	return {
-		ctor: '_Tuple2',
-		_0: A3(_elm_lang$core$Basics$clamp, 0, _user$project$Constants_World$worldWidth - 1, _p15._0),
-		_1: A3(_elm_lang$core$Basics$clamp, 0, _user$project$Constants_World$worldHeight - 1, _p15._1)
-	};
-};
-var _user$project$Update_Extra$move = F2(
-	function (_p16, thing) {
-		var _p17 = _p16;
-		var _p18 = thing.position;
-		var x = _p18._0;
-		var y = _p18._1;
+var _user$project$Helpers_World$asDwarvesIn = F2(
+	function (world, dwarves) {
 		return _elm_lang$core$Native_Utils.update(
-			thing,
-			{
-				position: _user$project$Update_Extra$clampPosition(
-					{ctor: '_Tuple2', _0: x + _p17._0, _1: y + _p17._1})
-			});
+			world,
+			{dwarves: dwarves});
 	});
-var _user$project$Generator_Dwarf_Goals$attackClosestDwarf = F2(
-	function (world, dwarf) {
-		return A2(_user$project$Update_Extra$moveTowardsAndPunchDwarf, dwarf, world);
+var _user$project$Helpers_World$asDwarfIn = F2(
+	function (dwarves, dwarf) {
+		return A3(
+			_elm_community$list_extra$List_Extra$replaceIf,
+			function (d) {
+				return _elm_lang$core$Native_Utils.eq(d.id, dwarf.id);
+			},
+			dwarf,
+			dwarves);
 	});
-var _user$project$Generator_Dwarf_Goals$drinkBeer = F2(
-	function (world, dwarf) {
-		return A3(_user$project$Update_Extra$decrementClosest, _user$project$Types$Beer, dwarf, world);
+var _user$project$Helpers_World$asResourcesIn = F2(
+	function (world, resources) {
+		return _elm_lang$core$Native_Utils.update(
+			world,
+			{resources: resources});
 	});
-var _user$project$Generator_Dwarf_Goals$eatFood = F2(
-	function (world, dwarf) {
-		return A3(_user$project$Update_Extra$decrementClosest, _user$project$Types$Food, dwarf, world);
+var _user$project$Helpers_World$asResourceIn = F2(
+	function (resources, resource) {
+		return A3(
+			_elm_community$list_extra$List_Extra$replaceIf,
+			function (r) {
+				return _elm_lang$core$Native_Utils.eq(r.id, resource.id);
+			},
+			resource,
+			resources);
 	});
-var _user$project$Generator_Dwarf_Goals$moveTowardsBeer = F2(
-	function (world, dwarf) {
-		return A3(_user$project$Update_Extra$moveTowardsResource, _user$project$Types$Beer, dwarf, world);
+var _user$project$Helpers_World$removeResource = F2(
+	function (resource, resources) {
+		return A2(
+			_elm_lang$core$List$filter,
+			function (r) {
+				return !_elm_lang$core$Native_Utils.eq(r.id, resource.id);
+			},
+			resources);
 	});
-var _user$project$Generator_Dwarf_Goals$moveTowardsFood = F2(
-	function (world, dwarf) {
-		return A3(_user$project$Update_Extra$moveTowardsResource, _user$project$Types$Food, dwarf, world);
+var _user$project$Helpers_World$removeDwarf = F2(
+	function (dwarf, dwarves) {
+		return A2(
+			_elm_lang$core$List$filter,
+			function (d) {
+				return !_elm_lang$core$Native_Utils.eq(d.id, dwarf.id);
+			},
+			dwarves);
 	});
-var _user$project$Generator_Dwarf_Goals$sleep = _elm_community$random_extra$Random_Extra$constant(
-	{ctor: '[]'});
+var _user$project$Helpers_World$findById = F2(
+	function (id, entities) {
+		return A2(
+			_elm_community$list_extra$List_Extra$find,
+			function (e) {
+				return _elm_lang$core$Native_Utils.eq(e.id, id);
+			},
+			entities);
+	});
 var _user$project$Update_Goal$aboveThreshold = F3(
 	function (p, ticks, threshold) {
 		return _elm_lang$core$Native_Utils.cmp(
@@ -13363,7 +13429,7 @@ var _user$project$Update_Goal$idle = function (ticks) {
 		_user$project$Update_Goal$continueWithPossibilityOfChange,
 		_user$project$Types$Idle,
 		ticks,
-		_user$project$Constants_Update$thresholds.idle,
+		_user$project$Constants_Goal$thresholds.idle,
 		{
 			ctor: '::',
 			_0: {ctor: '_Tuple2', _0: 1, _1: _user$project$Types$Sleep},
@@ -13383,7 +13449,7 @@ var _user$project$Update_Goal$rage = function (ticks) {
 		_user$project$Update_Goal$continueWithPossibilityOfChange,
 		_user$project$Types$Rage,
 		ticks,
-		_user$project$Constants_Update$thresholds.rage,
+		_user$project$Constants_Goal$thresholds.rage,
 		{
 			ctor: '::',
 			_0: {ctor: '_Tuple2', _0: 5, _1: _user$project$Types$Sleep},
@@ -13399,7 +13465,7 @@ var _user$project$Update_Goal$drink = function (ticks) {
 		_user$project$Update_Goal$continueWithPossibilityOfChange,
 		_user$project$Types$Drink,
 		ticks,
-		_user$project$Constants_Update$thresholds.drink,
+		_user$project$Constants_Goal$thresholds.drink,
 		{
 			ctor: '::',
 			_0: {ctor: '_Tuple2', _0: 5, _1: _user$project$Types$Idle},
@@ -13419,7 +13485,7 @@ var _user$project$Update_Goal$eat = function (ticks) {
 		_user$project$Update_Goal$continueWithPossibilityOfChange,
 		_user$project$Types$Eat,
 		ticks,
-		_user$project$Constants_Update$thresholds.eat,
+		_user$project$Constants_Goal$thresholds.eat,
 		{
 			ctor: '::',
 			_0: {ctor: '_Tuple2', _0: 5, _1: _user$project$Types$Idle},
@@ -13436,14 +13502,14 @@ var _user$project$Update_Goal$eat = function (ticks) {
 };
 var _user$project$Update_Goal$findBeer = F3(
 	function (ticks, dwarf, world) {
-		return _elm_lang$core$Native_Utils.eq(ticks, _user$project$Constants_Update$thresholds.findBeer) ? _elm_community$random_extra$Random_Extra$constant(
-			_user$project$Types$Rage(_user$project$Update_Goal$initDuration)) : (A3(_user$project$Update_Extra$isDwarfNextTo, _user$project$Types$Beer, dwarf, world) ? _elm_community$random_extra$Random_Extra$constant(
+		return _elm_lang$core$Native_Utils.eq(ticks, _user$project$Constants_Goal$thresholds.findBeer) ? _elm_community$random_extra$Random_Extra$constant(
+			_user$project$Types$Rage(_user$project$Update_Goal$initDuration)) : (A3(_user$project$Helpers_WorldQuery$isDwarfNextTo, _user$project$Types$Beer, dwarf, world) ? _elm_community$random_extra$Random_Extra$constant(
 			_user$project$Types$Drink(_user$project$Update_Goal$initDuration)) : A2(_user$project$Update_Goal$incrementTicks, _user$project$Types$FindBeer, ticks));
 	});
 var _user$project$Update_Goal$findFood = F3(
 	function (ticks, dwarf, world) {
-		return _elm_lang$core$Native_Utils.eq(ticks, _user$project$Constants_Update$thresholds.findFood) ? _elm_community$random_extra$Random_Extra$constant(
-			_user$project$Types$Rage(_user$project$Update_Goal$initDuration)) : (A3(_user$project$Update_Extra$isDwarfNextTo, _user$project$Types$Food, dwarf, world) ? _elm_community$random_extra$Random_Extra$constant(
+		return _elm_lang$core$Native_Utils.eq(ticks, _user$project$Constants_Goal$thresholds.findFood) ? _elm_community$random_extra$Random_Extra$constant(
+			_user$project$Types$Rage(_user$project$Update_Goal$initDuration)) : (A3(_user$project$Helpers_WorldQuery$isDwarfNextTo, _user$project$Types$Food, dwarf, world) ? _elm_community$random_extra$Random_Extra$constant(
 			_user$project$Types$Eat(_user$project$Update_Goal$initDuration)) : A2(_user$project$Update_Goal$incrementTicks, _user$project$Types$FindFood, ticks));
 	});
 var _user$project$Update_Goal$sleep = function (ticks) {
@@ -13451,7 +13517,7 @@ var _user$project$Update_Goal$sleep = function (ticks) {
 		_user$project$Update_Goal$continueWithPossibilityOfChange,
 		_user$project$Types$Sleep,
 		ticks,
-		_user$project$Constants_Update$thresholds.sleep,
+		_user$project$Constants_Goal$thresholds.sleep,
 		{
 			ctor: '::',
 			_0: {ctor: '_Tuple2', _0: 1, _1: _user$project$Types$Idle},
@@ -13478,27 +13544,7 @@ var _user$project$Update_Goal$nextGoal = F2(
 				return _user$project$Update_Goal$idle(_p2._0.ticks);
 		}
 	});
-var _user$project$Update_Dwarf$actOnGoal = F2(
-	function (dwarf, world) {
-		var _p0 = dwarf.goal;
-		switch (_p0.ctor) {
-			case 'Sleep':
-				return _user$project$Generator_Dwarf_Goals$sleep;
-			case 'FindFood':
-				return A2(_user$project$Generator_Dwarf_Goals$moveTowardsFood, world, dwarf);
-			case 'FindBeer':
-				return A2(_user$project$Generator_Dwarf_Goals$moveTowardsBeer, world, dwarf);
-			case 'Eat':
-				return A2(_user$project$Generator_Dwarf_Goals$eatFood, world, dwarf);
-			case 'Drink':
-				return A2(_user$project$Generator_Dwarf_Goals$drinkBeer, world, dwarf);
-			case 'Rage':
-				return A2(_user$project$Generator_Dwarf_Goals$attackClosestDwarf, world, dwarf);
-			default:
-				return _user$project$Update_Extra$moveRandomly(dwarf);
-		}
-	});
-var _user$project$Update_Dwarf$updatedDwarfGenerator = F2(
+var _user$project$Update$updatedDwarfGenerator = F2(
 	function (world, dwarf) {
 		return A4(
 			_elm_lang$core$Random$map3,
@@ -13507,89 +13553,43 @@ var _user$project$Update_Dwarf$updatedDwarfGenerator = F2(
 					return {ctor: '_Tuple3', _0: v0, _1: v1, _2: v2};
 				}),
 			_elm_community$random_extra$Random_Extra$constant(dwarf),
-			A2(_user$project$Update_Dwarf$actOnGoal, dwarf, world),
+			A2(_user$project$ActOnGoal$actOnGoal, dwarf, world),
 			A2(_user$project$Update_Goal$nextGoal, dwarf, world));
 	});
-var _user$project$Update$move = F2(
-	function (_p0, thing) {
-		var _p1 = _p0;
-		var _p2 = thing.position;
-		var x = _p2._0;
-		var y = _p2._1;
-		var newPosition = {
-			ctor: '_Tuple2',
-			_0: A3(_elm_lang$core$Basics$clamp, 0, _user$project$Constants_World$worldWidth - 1, x + _p1._0),
-			_1: A3(_elm_lang$core$Basics$clamp, 0, _user$project$Constants_World$worldHeight - 1, y + _p1._1)
-		};
-		return _elm_lang$core$Native_Utils.update(
-			thing,
-			{position: newPosition});
-	});
-var _user$project$Update$asDwarvesIn = F2(
-	function (world, dwarves) {
-		return _elm_lang$core$Native_Utils.update(
+var _user$project$Update$genInitData = function (counts) {
+	var resources = A2(_elm_lang$core$Random$list, counts.resources, _user$project$Generator_Resource$resource);
+	var dwarves = A2(_elm_lang$core$Random$list, counts.dwarves, _user$project$Generator_Dwarf$dwarf);
+	return A2(
+		_elm_lang$core$Random$generate,
+		_user$project$Types$GeneratedInitData,
+		A3(
+			_elm_lang$core$Random$map2,
+			F2(
+				function (v0, v1) {
+					return {ctor: '_Tuple2', _0: v0, _1: v1};
+				}),
+			dwarves,
+			resources));
+};
+var _user$project$Update$incrementResource = F3(
+	function (resourceId, amount, world) {
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
 			world,
-			{dwarves: dwarves});
-	});
-var _user$project$Update$asDwarfIn = F2(
-	function (dwarves, dwarf) {
-		return A3(
-			_elm_community$list_extra$List_Extra$replaceIf,
-			function (d) {
-				return _elm_lang$core$Native_Utils.eq(d.id, dwarf.id);
-			},
-			dwarf,
-			dwarves);
-	});
-var _user$project$Update$asResourcesIn = F2(
-	function (world, resources) {
-		return _elm_lang$core$Native_Utils.update(
-			world,
-			{resources: resources});
-	});
-var _user$project$Update$asResourceIn = F2(
-	function (resources, resource) {
-		return A3(
-			_elm_community$list_extra$List_Extra$replaceIf,
-			function (r) {
-				return _elm_lang$core$Native_Utils.eq(r.id, resource.id);
-			},
-			resource,
-			resources);
-	});
-var _user$project$Update$removeResource = F2(
-	function (resource, resources) {
-		return A2(
-			_elm_lang$core$List$filter,
-			function (r) {
-				return !_elm_lang$core$Native_Utils.eq(r.id, resource.id);
-			},
-			resources);
-	});
-var _user$project$Update$removeDwarf = F2(
-	function (dwarf, dwarves) {
-		return A2(
-			_elm_lang$core$List$filter,
-			function (d) {
-				return !_elm_lang$core$Native_Utils.eq(d.id, dwarf.id);
-			},
-			dwarves);
-	});
-var _user$project$Update$decrementHitpoints = F2(
-	function (amount, dwarf) {
-		return (_elm_lang$core$Native_Utils.cmp(dwarf.hitpoints, amount) < 1) ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(
-			_elm_lang$core$Native_Utils.update(
-				dwarf,
-				{hitpoints: dwarf.hitpoints - amount}));
-	});
-var _user$project$Update$findResource = F2(
-	function (resourceId, resources) {
-		return A2(
-			_elm_community$list_extra$List_Extra$find,
-			function (r) {
-				return _elm_lang$core$Native_Utils.eq(r.id, resourceId);
-			},
-			resources);
+			A2(
+				_elm_lang$core$Maybe$map,
+				function (resource) {
+					return A2(
+						_user$project$Helpers_World$asResourcesIn,
+						world,
+						A2(
+							_user$project$Helpers_World$asResourceIn,
+							world.resources,
+							_elm_lang$core$Native_Utils.update(
+								resource,
+								{amount: resource.amount + amount})));
+				},
+				A2(_user$project$Helpers_World$findById, resourceId, world.resources)));
 	});
 var _user$project$Update$decrementResource = F3(
 	function (resourceId, amount, world) {
@@ -13600,48 +13600,19 @@ var _user$project$Update$decrementResource = F3(
 				_elm_lang$core$Maybe$map,
 				function (resource) {
 					return (_elm_lang$core$Native_Utils.cmp(resource.amount, amount) < 1) ? A2(
-						_user$project$Update$asResourcesIn,
+						_user$project$Helpers_World$asResourcesIn,
 						world,
-						A2(_user$project$Update$removeResource, resource, world.resources)) : A2(
-						_user$project$Update$asResourcesIn,
+						A2(_user$project$Helpers_World$removeResource, resource, world.resources)) : A2(
+						_user$project$Helpers_World$asResourcesIn,
 						world,
 						A2(
-							_user$project$Update$asResourceIn,
+							_user$project$Helpers_World$asResourceIn,
 							world.resources,
 							_elm_lang$core$Native_Utils.update(
 								resource,
 								{amount: resource.amount - amount})));
 				},
-				A2(_user$project$Update$findResource, resourceId, world.resources)));
-	});
-var _user$project$Update$incrementResource = F3(
-	function (resourceId, amount, world) {
-		return A2(
-			_elm_lang$core$Maybe$withDefault,
-			world,
-			A2(
-				_elm_lang$core$Maybe$map,
-				function (resource) {
-					return A2(
-						_user$project$Update$asResourcesIn,
-						world,
-						A2(
-							_user$project$Update$asResourceIn,
-							world.resources,
-							_elm_lang$core$Native_Utils.update(
-								resource,
-								{amount: resource.amount + amount})));
-				},
-				A2(_user$project$Update$findResource, resourceId, world.resources)));
-	});
-var _user$project$Update$findDwarf = F2(
-	function (dwarfId, dwarves) {
-		return A2(
-			_elm_community$list_extra$List_Extra$find,
-			function (d) {
-				return _elm_lang$core$Native_Utils.eq(d.id, dwarfId);
-			},
-			dwarves);
+				A2(_user$project$Helpers_World$findById, resourceId, world.resources)));
 	});
 var _user$project$Update$punchDwarf = F3(
 	function (whoId, whomId, world) {
@@ -13652,24 +13623,24 @@ var _user$project$Update$punchDwarf = F3(
 				_elm_lang$core$Maybe$map2,
 				F2(
 					function (who, whom) {
-						return A2(_user$project$Update_Extra$isNextTo, who.position, whom.position) ? A2(
+						return A2(_user$project$Helpers_XY$isNextTo, who.position, whom.position) ? A2(
 							_elm_lang$core$Maybe$withDefault,
 							A2(
-								_user$project$Update$asDwarvesIn,
+								_user$project$Helpers_World$asDwarvesIn,
 								world,
-								A2(_user$project$Update$removeDwarf, whom, world.dwarves)),
+								A2(_user$project$Helpers_World$removeDwarf, whom, world.dwarves)),
 							A2(
 								_elm_lang$core$Maybe$map,
 								function (punchedDwarf) {
 									return A2(
-										_user$project$Update$asDwarvesIn,
+										_user$project$Helpers_World$asDwarvesIn,
 										world,
-										A2(_user$project$Update$asDwarfIn, world.dwarves, punchedDwarf));
+										A2(_user$project$Helpers_World$asDwarfIn, world.dwarves, punchedDwarf));
 								},
-								A2(_user$project$Update$decrementHitpoints, 1, whom))) : world;
+								A2(_user$project$Helpers_World$decrementHitpoints, 1, whom))) : world;
 					}),
-				A2(_user$project$Update$findDwarf, whoId, world.dwarves),
-				A2(_user$project$Update$findDwarf, whomId, world.dwarves)));
+				A2(_user$project$Helpers_World$findById, whoId, world.dwarves),
+				A2(_user$project$Helpers_World$findById, whomId, world.dwarves)));
 	});
 var _user$project$Update$moveDwarf = F3(
 	function (dwarfId, xyMove, world) {
@@ -13680,14 +13651,14 @@ var _user$project$Update$moveDwarf = F3(
 				_elm_lang$core$Maybe$map,
 				function (d) {
 					return A2(
-						_user$project$Update$asDwarvesIn,
+						_user$project$Helpers_World$asDwarvesIn,
 						world,
 						A2(
-							_user$project$Update$asDwarfIn,
+							_user$project$Helpers_World$asDwarfIn,
 							world.dwarves,
-							A2(_user$project$Update$move, xyMove, d)));
+							A2(_user$project$Helpers_XY$move, xyMove, d)));
 				},
-				A2(_user$project$Update$findDwarf, dwarfId, world.dwarves)));
+				A2(_user$project$Helpers_World$findById, dwarfId, world.dwarves)));
 	});
 var _user$project$Update$tick = function (world) {
 	var updateDwarvesCmds = A2(
@@ -13695,17 +13666,17 @@ var _user$project$Update$tick = function (world) {
 		_elm_lang$core$Random$generate(_user$project$Types$UpdateDwarf),
 		A2(
 			_elm_lang$core$List$map,
-			_user$project$Update_Dwarf$updatedDwarfGenerator(world),
+			_user$project$Update$updatedDwarfGenerator(world),
 			world.dwarves));
 	return A2(_Janiczek$cmd_extra$Cmd_Extra$withCmds, updateDwarvesCmds, world);
 };
 var _user$project$Update$generatedInitData = F2(
-	function (_p3, world) {
-		var _p4 = _p3;
-		var _p6 = _p4._1;
-		var _p5 = _p4._0;
-		var nextIdAfterDwarves = world.nextId + _elm_lang$core$List$length(_p5);
-		var nextIdAfterAll = nextIdAfterDwarves + _elm_lang$core$List$length(_p6);
+	function (_p0, world) {
+		var _p1 = _p0;
+		var _p3 = _p1._1;
+		var _p2 = _p1._0;
+		var nextIdAfterDwarves = world.nextId + _elm_lang$core$List$length(_p2);
+		var nextIdAfterAll = nextIdAfterDwarves + _elm_lang$core$List$length(_p3);
 		return _Janiczek$cmd_extra$Cmd_Extra$withNoCmd(
 			_elm_lang$core$Native_Utils.update(
 				world,
@@ -13721,7 +13692,7 @@ var _user$project$Update$generatedInitData = F2(
 									return dwarf(id);
 								}),
 							A2(_elm_lang$core$List$range, world.nextId, nextIdAfterDwarves - 1),
-							_p5)),
+							_p2)),
 					resources: A2(
 						_elm_lang$core$Basics_ops['++'],
 						world.resources,
@@ -13732,51 +13703,51 @@ var _user$project$Update$generatedInitData = F2(
 									return resource(id);
 								}),
 							A2(_elm_lang$core$List$range, nextIdAfterDwarves, nextIdAfterAll - 1),
-							_p6))
+							_p3))
 				}));
 	});
 var _user$project$Update$update = F2(
 	function (msg, world) {
-		var _p7 = msg;
-		switch (_p7.ctor) {
+		var _p4 = msg;
+		switch (_p4.ctor) {
 			case 'GeneratedInitData':
-				return A2(_user$project$Update$generatedInitData, _p7._0, world);
+				return A2(_user$project$Update$generatedInitData, _p4._0, world);
 			case 'Tick':
 				return _user$project$Update$tick(world);
 			case 'UpdateDwarf':
 				return A2(
 					_user$project$Update$updateDwarf,
-					{ctor: '_Tuple3', _0: _p7._0._0, _1: _p7._0._1, _2: _p7._0._2},
+					{ctor: '_Tuple3', _0: _p4._0._0, _1: _p4._0._1, _2: _p4._0._2},
 					world);
 			case 'MoveDwarf':
 				return _Janiczek$cmd_extra$Cmd_Extra$withNoCmd(
-					A3(_user$project$Update$moveDwarf, _p7._0, _p7._1, world));
+					A3(_user$project$Update$moveDwarf, _p4._0, _p4._1, world));
 			case 'PunchDwarf':
 				return _Janiczek$cmd_extra$Cmd_Extra$withNoCmd(
-					A3(_user$project$Update$punchDwarf, _p7._0, _p7._1, world));
+					A3(_user$project$Update$punchDwarf, _p4._0, _p4._1, world));
 			case 'DecrementResource':
 				return _Janiczek$cmd_extra$Cmd_Extra$withNoCmd(
-					A3(_user$project$Update$decrementResource, _p7._0, _p7._1, world));
+					A3(_user$project$Update$decrementResource, _p4._0, _p4._1, world));
 			default:
 				return _Janiczek$cmd_extra$Cmd_Extra$withNoCmd(
-					A3(_user$project$Update$incrementResource, _p7._0, _p7._1, world));
+					A3(_user$project$Update$incrementResource, _p4._0, _p4._1, world));
 		}
 	});
 var _user$project$Update$updateDwarf = F2(
-	function (_p8, world) {
-		var _p9 = _p8;
+	function (_p5, world) {
+		var _p6 = _p5;
 		var worldWithNewGoal = A2(
-			_user$project$Update$asDwarvesIn,
+			_user$project$Helpers_World$asDwarvesIn,
 			world,
 			A3(
 				_elm_community$list_extra$List_Extra$updateIf,
 				function (d) {
-					return _elm_lang$core$Native_Utils.eq(d.id, _p9._0.id);
+					return _elm_lang$core$Native_Utils.eq(d.id, _p6._0.id);
 				},
 				function (d) {
 					return _elm_lang$core$Native_Utils.update(
 						d,
-						{goal: _p9._2});
+						{goal: _p6._2});
 				},
 				world.dwarves));
 		return _Janiczek$cmd_extra$Cmd_Extra$withNoCmd(
@@ -13788,7 +13759,7 @@ var _user$project$Update$updateDwarf = F2(
 							A2(_user$project$Update$update, msg, world));
 					}),
 				worldWithNewGoal,
-				_p9._1));
+				_p6._1));
 	});
 var _user$project$Update$subscriptions = function (world) {
 	return A2(
@@ -13800,7 +13771,7 @@ var _user$project$Update$init = A2(
 	_Janiczek$cmd_extra$Cmd_Extra$withCmds,
 	{
 		ctor: '::',
-		_0: _user$project$Cmd$genInitData(
+		_0: _user$project$Update$genInitData(
 			{dwarves: _user$project$Constants_World$initDwarves, resources: _user$project$Constants_World$initResources}),
 		_1: {ctor: '[]'}
 	},
@@ -13870,19 +13841,19 @@ var _user$project$View_Dwarf$goalToString = function (goal) {
 	var _p0 = goal;
 	switch (_p0.ctor) {
 		case 'Idle':
-			return A3(_user$project$View_Dwarf$goalToStringHelper, 'Idle', _p0._0.ticks, _user$project$Constants_Update$thresholds.idle);
+			return A3(_user$project$View_Dwarf$goalToStringHelper, 'Idle', _p0._0.ticks, _user$project$Constants_Goal$thresholds.idle);
 		case 'Sleep':
-			return A3(_user$project$View_Dwarf$goalToStringHelper, 'Sleeping', _p0._0.ticks, _user$project$Constants_Update$thresholds.sleep);
+			return A3(_user$project$View_Dwarf$goalToStringHelper, 'Sleeping', _p0._0.ticks, _user$project$Constants_Goal$thresholds.sleep);
 		case 'FindFood':
-			return A3(_user$project$View_Dwarf$goalToStringHelper, 'Hungry, seeks food', _p0._0.ticks, _user$project$Constants_Update$thresholds.findFood);
+			return A3(_user$project$View_Dwarf$goalToStringHelper, 'Hungry, seeks food', _p0._0.ticks, _user$project$Constants_Goal$thresholds.findFood);
 		case 'FindBeer':
-			return A3(_user$project$View_Dwarf$goalToStringHelper, 'Thirsty, seeks beer', _p0._0.ticks, _user$project$Constants_Update$thresholds.findBeer);
+			return A3(_user$project$View_Dwarf$goalToStringHelper, 'Thirsty, seeks beer', _p0._0.ticks, _user$project$Constants_Goal$thresholds.findBeer);
 		case 'Eat':
-			return A3(_user$project$View_Dwarf$goalToStringHelper, 'Eating', _p0._0.ticks, _user$project$Constants_Update$thresholds.eat);
+			return A3(_user$project$View_Dwarf$goalToStringHelper, 'Eating', _p0._0.ticks, _user$project$Constants_Goal$thresholds.eat);
 		case 'Drink':
-			return A3(_user$project$View_Dwarf$goalToStringHelper, 'Drinking', _p0._0.ticks, _user$project$Constants_Update$thresholds.drink);
+			return A3(_user$project$View_Dwarf$goalToStringHelper, 'Drinking', _p0._0.ticks, _user$project$Constants_Goal$thresholds.drink);
 		default:
-			return A3(_user$project$View_Dwarf$goalToStringHelper, 'Raging (wants to punch somebody!)', _p0._0.ticks, _user$project$Constants_Update$thresholds.rage);
+			return A3(_user$project$View_Dwarf$goalToStringHelper, 'Raging (wants to punch somebody!)', _p0._0.ticks, _user$project$Constants_Goal$thresholds.rage);
 	}
 };
 var _user$project$View_Dwarf$viewDwarfGoal = function (_p1) {
