@@ -5,6 +5,7 @@ import Random exposing (Generator)
 import Random.Extra as Random
 import Types exposing (..)
 import Update.Goal exposing (nextGoal)
+import Update.Extra exposing (..)
 
 
 updatedDwarfGenerator : World -> Dwarf -> Generator ( Dwarf, List Msg, Goal )

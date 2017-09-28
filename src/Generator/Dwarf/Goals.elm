@@ -11,14 +11,6 @@ sleep =
     Random.constant []
 
 
-moveRandomly : Dwarf -> Generator (List Msg)
-moveRandomly dwarf =
-    Random.map2 (,)
-        (Random.int -1 1)
-        (Random.int -1 1)
-        |> Random.map (\xyMove -> [ MoveDwarf dwarf.id xyMove ])
-
-
 moveTowardsFood : World -> Dwarf -> Generator (List Msg)
 moveTowardsFood world dwarf =
     moveTowardsResource Food dwarf world

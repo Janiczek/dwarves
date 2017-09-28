@@ -86,16 +86,16 @@ toDelta order =
 
 moveTowardsResource : ResourceKind -> Dwarf -> World -> Generator (List Msg)
 moveTowardsResource kind dwarf world =
-    resourceClosestToDwarf kind dwarf world
-        |> Maybe.map
-            (\res ->
-                [ dwarf.position
-                    |> moveCloserTo res.position
-                    |> MoveDwarf dwarf.id
-                ]
-            )
-        |> Maybe.withDefault []
-        |> Random.constant
+    case resourceClosestToDwarf kind dwarf world of
+        Nothing ->
+            moveRandomly dwarf
+
+        Just resource ->
+            [ dwarf.position
+                |> moveCloserTo resource.position
+                |> MoveDwarf dwarf.id
+            ]
+                |> Random.constant
 
 
 dwarfClosestToDwarf : Dwarf -> World -> Maybe Dwarf
@@ -121,3 +121,11 @@ moveTowardsAndPunchDwarf dwarf world =
             )
         |> Maybe.withDefault []
         |> Random.constant
+
+
+moveRandomly : Dwarf -> Generator (List Msg)
+moveRandomly dwarf =
+    Random.map2 (,)
+        (Random.int -1 1)
+        (Random.int -1 1)
+        |> Random.map (\xyMove -> [ MoveDwarf dwarf.id xyMove ])
