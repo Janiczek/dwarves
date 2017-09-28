@@ -10524,6 +10524,534 @@ var _elm_lang$html$Html$details = _elm_lang$html$Html$node('details');
 var _elm_lang$html$Html$summary = _elm_lang$html$Html$node('summary');
 var _elm_lang$html$Html$menuitem = _elm_lang$html$Html$node('menuitem');
 var _elm_lang$html$Html$menu = _elm_lang$html$Html$node('menu');
+var _fredcy$elm_parseint$ParseInt$charFromInt = function (i) {
+	return (_elm_lang$core$Native_Utils.cmp(i, 10) < 0) ? _elm_lang$core$Char$fromCode(
+		i + _elm_lang$core$Char$toCode(
+			_elm_lang$core$Native_Utils.chr('0'))) : ((_elm_lang$core$Native_Utils.cmp(i, 36) < 0) ? _elm_lang$core$Char$fromCode(
+		(i - 10) + _elm_lang$core$Char$toCode(
+			_elm_lang$core$Native_Utils.chr('A'))) : _elm_lang$core$Native_Utils.crash(
+		'ParseInt',
+		{
+			start: {line: 158, column: 9},
+			end: {line: 158, column: 20}
+		})(
+		_elm_lang$core$Basics$toString(i)));
+};
+var _fredcy$elm_parseint$ParseInt$toRadixUnsafe = F2(
+	function (radix, i) {
+		return (_elm_lang$core$Native_Utils.cmp(i, radix) < 0) ? _elm_lang$core$String$fromChar(
+			_fredcy$elm_parseint$ParseInt$charFromInt(i)) : A2(
+			_elm_lang$core$Basics_ops['++'],
+			A2(_fredcy$elm_parseint$ParseInt$toRadixUnsafe, radix, (i / radix) | 0),
+			_elm_lang$core$String$fromChar(
+				_fredcy$elm_parseint$ParseInt$charFromInt(
+					A2(_elm_lang$core$Basics_ops['%'], i, radix))));
+	});
+var _fredcy$elm_parseint$ParseInt$toOct = _fredcy$elm_parseint$ParseInt$toRadixUnsafe(8);
+var _fredcy$elm_parseint$ParseInt$toHex = _fredcy$elm_parseint$ParseInt$toRadixUnsafe(16);
+var _fredcy$elm_parseint$ParseInt$isBetween = F3(
+	function (lower, upper, c) {
+		var ci = _elm_lang$core$Char$toCode(c);
+		return (_elm_lang$core$Native_Utils.cmp(
+			_elm_lang$core$Char$toCode(lower),
+			ci) < 1) && (_elm_lang$core$Native_Utils.cmp(
+			ci,
+			_elm_lang$core$Char$toCode(upper)) < 1);
+	});
+var _fredcy$elm_parseint$ParseInt$charOffset = F2(
+	function (basis, c) {
+		return _elm_lang$core$Char$toCode(c) - _elm_lang$core$Char$toCode(basis);
+	});
+var _fredcy$elm_parseint$ParseInt$InvalidRadix = function (a) {
+	return {ctor: 'InvalidRadix', _0: a};
+};
+var _fredcy$elm_parseint$ParseInt$toRadix = F2(
+	function (radix, i) {
+		return ((_elm_lang$core$Native_Utils.cmp(2, radix) < 1) && (_elm_lang$core$Native_Utils.cmp(radix, 36) < 1)) ? ((_elm_lang$core$Native_Utils.cmp(i, 0) < 0) ? _elm_lang$core$Result$Ok(
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				'-',
+				A2(_fredcy$elm_parseint$ParseInt$toRadixUnsafe, radix, 0 - i))) : _elm_lang$core$Result$Ok(
+			A2(_fredcy$elm_parseint$ParseInt$toRadixUnsafe, radix, i))) : _elm_lang$core$Result$Err(
+			_fredcy$elm_parseint$ParseInt$InvalidRadix(radix));
+	});
+var _fredcy$elm_parseint$ParseInt$OutOfRange = function (a) {
+	return {ctor: 'OutOfRange', _0: a};
+};
+var _fredcy$elm_parseint$ParseInt$InvalidChar = function (a) {
+	return {ctor: 'InvalidChar', _0: a};
+};
+var _fredcy$elm_parseint$ParseInt$intFromChar = F2(
+	function (radix, c) {
+		var validInt = function (i) {
+			return (_elm_lang$core$Native_Utils.cmp(i, radix) < 0) ? _elm_lang$core$Result$Ok(i) : _elm_lang$core$Result$Err(
+				_fredcy$elm_parseint$ParseInt$OutOfRange(c));
+		};
+		var toInt = A3(
+			_fredcy$elm_parseint$ParseInt$isBetween,
+			_elm_lang$core$Native_Utils.chr('0'),
+			_elm_lang$core$Native_Utils.chr('9'),
+			c) ? _elm_lang$core$Result$Ok(
+			A2(
+				_fredcy$elm_parseint$ParseInt$charOffset,
+				_elm_lang$core$Native_Utils.chr('0'),
+				c)) : (A3(
+			_fredcy$elm_parseint$ParseInt$isBetween,
+			_elm_lang$core$Native_Utils.chr('a'),
+			_elm_lang$core$Native_Utils.chr('z'),
+			c) ? _elm_lang$core$Result$Ok(
+			10 + A2(
+				_fredcy$elm_parseint$ParseInt$charOffset,
+				_elm_lang$core$Native_Utils.chr('a'),
+				c)) : (A3(
+			_fredcy$elm_parseint$ParseInt$isBetween,
+			_elm_lang$core$Native_Utils.chr('A'),
+			_elm_lang$core$Native_Utils.chr('Z'),
+			c) ? _elm_lang$core$Result$Ok(
+			10 + A2(
+				_fredcy$elm_parseint$ParseInt$charOffset,
+				_elm_lang$core$Native_Utils.chr('A'),
+				c)) : _elm_lang$core$Result$Err(
+			_fredcy$elm_parseint$ParseInt$InvalidChar(c))));
+		return A2(_elm_lang$core$Result$andThen, validInt, toInt);
+	});
+var _fredcy$elm_parseint$ParseInt$parseIntR = F2(
+	function (radix, rstring) {
+		var _p0 = _elm_lang$core$String$uncons(rstring);
+		if (_p0.ctor === 'Nothing') {
+			return _elm_lang$core$Result$Ok(0);
+		} else {
+			return A2(
+				_elm_lang$core$Result$andThen,
+				function (ci) {
+					return A2(
+						_elm_lang$core$Result$andThen,
+						function (ri) {
+							return _elm_lang$core$Result$Ok(ci + (ri * radix));
+						},
+						A2(_fredcy$elm_parseint$ParseInt$parseIntR, radix, _p0._0._1));
+				},
+				A2(_fredcy$elm_parseint$ParseInt$intFromChar, radix, _p0._0._0));
+		}
+	});
+var _fredcy$elm_parseint$ParseInt$parseIntRadix = F2(
+	function (radix, string) {
+		return ((_elm_lang$core$Native_Utils.cmp(2, radix) < 1) && (_elm_lang$core$Native_Utils.cmp(radix, 36) < 1)) ? A2(
+			_fredcy$elm_parseint$ParseInt$parseIntR,
+			radix,
+			_elm_lang$core$String$reverse(string)) : _elm_lang$core$Result$Err(
+			_fredcy$elm_parseint$ParseInt$InvalidRadix(radix));
+	});
+var _fredcy$elm_parseint$ParseInt$parseInt = _fredcy$elm_parseint$ParseInt$parseIntRadix(10);
+var _fredcy$elm_parseint$ParseInt$parseIntOct = _fredcy$elm_parseint$ParseInt$parseIntRadix(8);
+var _fredcy$elm_parseint$ParseInt$parseIntHex = _fredcy$elm_parseint$ParseInt$parseIntRadix(16);
+var _eskimoblood$elm_color_extra$Color_Convert$xyzToColor = function (_p0) {
+	var _p1 = _p0;
+	var c = function (ch) {
+		var ch_ = (_elm_lang$core$Native_Utils.cmp(ch, 3.1308e-3) > 0) ? ((1.055 * Math.pow(ch, 1 / 2.4)) - 5.5e-2) : (12.92 * ch);
+		return _elm_lang$core$Basics$round(
+			A3(_elm_lang$core$Basics$clamp, 0, 255, ch_ * 255));
+	};
+	var z_ = _p1.z / 100;
+	var y_ = _p1.y / 100;
+	var x_ = _p1.x / 100;
+	var r = ((x_ * 3.2404542) + (y_ * -1.5371385)) + (z_ * -0.4986);
+	var g = ((x_ * -0.969266) + (y_ * 1.8760108)) + (z_ * 4.1556e-2);
+	var b = ((x_ * 5.56434e-2) + (y_ * -0.2040259)) + (z_ * 1.0572252);
+	return A3(
+		_elm_lang$core$Color$rgb,
+		c(r),
+		c(g),
+		c(b));
+};
+var _eskimoblood$elm_color_extra$Color_Convert$labToXyz = function (_p2) {
+	var _p3 = _p2;
+	var y = (_p3.l + 16) / 116;
+	var c = function (ch) {
+		var ch_ = (ch * ch) * ch;
+		return (_elm_lang$core$Native_Utils.cmp(ch_, 8.856e-3) > 0) ? ch_ : ((ch - (16 / 116)) / 7.787);
+	};
+	return {
+		y: c(y) * 100,
+		x: c(y + (_p3.a / 500)) * 95.047,
+		z: c(y - (_p3.b / 200)) * 108.883
+	};
+};
+var _eskimoblood$elm_color_extra$Color_Convert$labToColor = function (_p4) {
+	return _eskimoblood$elm_color_extra$Color_Convert$xyzToColor(
+		_eskimoblood$elm_color_extra$Color_Convert$labToXyz(_p4));
+};
+var _eskimoblood$elm_color_extra$Color_Convert$xyzToLab = function (_p5) {
+	var _p6 = _p5;
+	var c = function (ch) {
+		return (_elm_lang$core$Native_Utils.cmp(ch, 8.856e-3) > 0) ? Math.pow(ch, 1 / 3) : ((7.787 * ch) + (16 / 116));
+	};
+	var x_ = c(_p6.x / 95.047);
+	var y_ = c(_p6.y / 100);
+	var z_ = c(_p6.z / 108.883);
+	return {l: (116 * y_) - 16, a: 500 * (x_ - y_), b: 200 * (y_ - z_)};
+};
+var _eskimoblood$elm_color_extra$Color_Convert$colorToXyz = function (cl) {
+	var _p7 = _elm_lang$core$Color$toRgb(cl);
+	var red = _p7.red;
+	var green = _p7.green;
+	var blue = _p7.blue;
+	var c = function (ch) {
+		var ch_ = _elm_lang$core$Basics$toFloat(ch) / 255;
+		var ch__ = (_elm_lang$core$Native_Utils.cmp(ch_, 4.045e-2) > 0) ? Math.pow((ch_ + 5.5e-2) / 1.055, 2.4) : (ch_ / 12.92);
+		return ch__ * 100;
+	};
+	var r = c(red);
+	var g = c(green);
+	var b = c(blue);
+	return {x: ((r * 0.4124) + (g * 0.3576)) + (b * 0.1805), y: ((r * 0.2126) + (g * 0.7152)) + (b * 7.22e-2), z: ((r * 1.93e-2) + (g * 0.1192)) + (b * 0.9505)};
+};
+var _eskimoblood$elm_color_extra$Color_Convert$colorToLab = function (_p8) {
+	return _eskimoblood$elm_color_extra$Color_Convert$xyzToLab(
+		_eskimoblood$elm_color_extra$Color_Convert$colorToXyz(_p8));
+};
+var _eskimoblood$elm_color_extra$Color_Convert$toRadix = function (n) {
+	var getChr = function (c) {
+		return (_elm_lang$core$Native_Utils.cmp(c, 10) < 0) ? _elm_lang$core$Basics$toString(c) : _elm_lang$core$String$fromChar(
+			_elm_lang$core$Char$fromCode(87 + c));
+	};
+	return (_elm_lang$core$Native_Utils.cmp(n, 16) < 0) ? getChr(n) : A2(
+		_elm_lang$core$Basics_ops['++'],
+		_eskimoblood$elm_color_extra$Color_Convert$toRadix((n / 16) | 0),
+		getChr(
+			A2(_elm_lang$core$Basics_ops['%'], n, 16)));
+};
+var _eskimoblood$elm_color_extra$Color_Convert$toHex = function (_p9) {
+	return A3(
+		_elm_lang$core$String$padLeft,
+		2,
+		_elm_lang$core$Native_Utils.chr('0'),
+		_eskimoblood$elm_color_extra$Color_Convert$toRadix(_p9));
+};
+var _eskimoblood$elm_color_extra$Color_Convert$colorToHex = function (cl) {
+	var _p10 = _elm_lang$core$Color$toRgb(cl);
+	var red = _p10.red;
+	var green = _p10.green;
+	var blue = _p10.blue;
+	return A2(
+		_elm_lang$core$String$join,
+		'',
+		A2(
+			F2(
+				function (x, y) {
+					return {ctor: '::', _0: x, _1: y};
+				}),
+			'#',
+			A2(
+				_elm_lang$core$List$map,
+				_eskimoblood$elm_color_extra$Color_Convert$toHex,
+				{
+					ctor: '::',
+					_0: red,
+					_1: {
+						ctor: '::',
+						_0: green,
+						_1: {
+							ctor: '::',
+							_0: blue,
+							_1: {ctor: '[]'}
+						}
+					}
+				})));
+};
+var _eskimoblood$elm_color_extra$Color_Convert$hexToColor = function () {
+	var pattern = A2(
+		_elm_lang$core$Basics_ops['++'],
+		'',
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			'^',
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				'#?',
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					'(?:',
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						'(?:([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2}))',
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							'|',
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								'(?:([a-f\\d])([a-f\\d])([a-f\\d]))',
+								A2(_elm_lang$core$Basics_ops['++'], ')', '$'))))))));
+	var extend = function (token) {
+		var _p11 = _elm_lang$core$String$toList(token);
+		if ((_p11.ctor === '::') && (_p11._1.ctor === '[]')) {
+			var _p12 = _p11._0;
+			return _elm_lang$core$String$fromList(
+				{
+					ctor: '::',
+					_0: _p12,
+					_1: {
+						ctor: '::',
+						_0: _p12,
+						_1: {ctor: '[]'}
+					}
+				});
+		} else {
+			return token;
+		}
+	};
+	return function (_p13) {
+		return A2(
+			_elm_lang$core$Result$andThen,
+			function (colors) {
+				var _p15 = A2(
+					_elm_lang$core$List$map,
+					function (_p14) {
+						return _fredcy$elm_parseint$ParseInt$parseIntHex(
+							extend(_p14));
+					},
+					colors);
+				if (((((((_p15.ctor === '::') && (_p15._0.ctor === 'Ok')) && (_p15._1.ctor === '::')) && (_p15._1._0.ctor === 'Ok')) && (_p15._1._1.ctor === '::')) && (_p15._1._1._0.ctor === 'Ok')) && (_p15._1._1._1.ctor === '[]')) {
+					return _elm_lang$core$Result$Ok(
+						A3(_elm_lang$core$Color$rgb, _p15._0._0, _p15._1._0._0, _p15._1._1._0._0));
+				} else {
+					return _elm_lang$core$Result$Err('Parsing ints from hex failed');
+				}
+			},
+			A2(
+				_elm_lang$core$Result$fromMaybe,
+				'Parsing hex regex failed',
+				A2(
+					_elm_lang$core$Maybe$map,
+					_elm_lang$core$List$filterMap(_elm_lang$core$Basics$identity),
+					A2(
+						_elm_lang$core$Maybe$map,
+						function (_) {
+							return _.submatches;
+						},
+						_elm_lang$core$List$head(
+							A3(
+								_elm_lang$core$Regex$find,
+								_elm_lang$core$Regex$AtMost(1),
+								_elm_lang$core$Regex$regex(pattern),
+								_elm_lang$core$String$toLower(_p13)))))));
+	};
+}();
+var _eskimoblood$elm_color_extra$Color_Convert$cssColorString = F2(
+	function (kind, values) {
+		return A2(
+			_elm_lang$core$Basics_ops['++'],
+			kind,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				'(',
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					A2(_elm_lang$core$String$join, ', ', values),
+					')')));
+	});
+var _eskimoblood$elm_color_extra$Color_Convert$toPercentString = function (_p16) {
+	return A3(
+		_elm_lang$core$Basics$flip,
+		F2(
+			function (x, y) {
+				return A2(_elm_lang$core$Basics_ops['++'], x, y);
+			}),
+		'%',
+		_elm_lang$core$Basics$toString(
+			_elm_lang$core$Basics$round(
+				A2(
+					F2(
+						function (x, y) {
+							return x * y;
+						}),
+					100,
+					_p16))));
+};
+var _eskimoblood$elm_color_extra$Color_Convert$hueToString = function (_p17) {
+	return _elm_lang$core$Basics$toString(
+		_elm_lang$core$Basics$round(
+			A3(
+				_elm_lang$core$Basics$flip,
+				F2(
+					function (x, y) {
+						return x / y;
+					}),
+				_elm_lang$core$Basics$pi,
+				A2(
+					F2(
+						function (x, y) {
+							return x * y;
+						}),
+					180,
+					_p17))));
+};
+var _eskimoblood$elm_color_extra$Color_Convert$colorToCssHsla = function (cl) {
+	var _p18 = _elm_lang$core$Color$toHsl(cl);
+	var hue = _p18.hue;
+	var saturation = _p18.saturation;
+	var lightness = _p18.lightness;
+	var alpha = _p18.alpha;
+	return A2(
+		_eskimoblood$elm_color_extra$Color_Convert$cssColorString,
+		'hsla',
+		{
+			ctor: '::',
+			_0: _eskimoblood$elm_color_extra$Color_Convert$hueToString(hue),
+			_1: {
+				ctor: '::',
+				_0: _eskimoblood$elm_color_extra$Color_Convert$toPercentString(saturation),
+				_1: {
+					ctor: '::',
+					_0: _eskimoblood$elm_color_extra$Color_Convert$toPercentString(lightness),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$core$Basics$toString(alpha),
+						_1: {ctor: '[]'}
+					}
+				}
+			}
+		});
+};
+var _eskimoblood$elm_color_extra$Color_Convert$colorToCssHsl = function (cl) {
+	var _p19 = _elm_lang$core$Color$toHsl(cl);
+	var hue = _p19.hue;
+	var saturation = _p19.saturation;
+	var lightness = _p19.lightness;
+	var alpha = _p19.alpha;
+	return A2(
+		_eskimoblood$elm_color_extra$Color_Convert$cssColorString,
+		'hsl',
+		{
+			ctor: '::',
+			_0: _eskimoblood$elm_color_extra$Color_Convert$hueToString(hue),
+			_1: {
+				ctor: '::',
+				_0: _eskimoblood$elm_color_extra$Color_Convert$toPercentString(saturation),
+				_1: {
+					ctor: '::',
+					_0: _eskimoblood$elm_color_extra$Color_Convert$toPercentString(lightness),
+					_1: {ctor: '[]'}
+				}
+			}
+		});
+};
+var _eskimoblood$elm_color_extra$Color_Convert$colorToCssRgba = function (cl) {
+	var _p20 = _elm_lang$core$Color$toRgb(cl);
+	var red = _p20.red;
+	var green = _p20.green;
+	var blue = _p20.blue;
+	var alpha = _p20.alpha;
+	return A2(
+		_eskimoblood$elm_color_extra$Color_Convert$cssColorString,
+		'rgba',
+		{
+			ctor: '::',
+			_0: _elm_lang$core$Basics$toString(red),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$core$Basics$toString(green),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$core$Basics$toString(blue),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$core$Basics$toString(alpha),
+						_1: {ctor: '[]'}
+					}
+				}
+			}
+		});
+};
+var _eskimoblood$elm_color_extra$Color_Convert$colorToCssRgb = function (cl) {
+	var _p21 = _elm_lang$core$Color$toRgb(cl);
+	var red = _p21.red;
+	var green = _p21.green;
+	var blue = _p21.blue;
+	var alpha = _p21.alpha;
+	return A2(
+		_eskimoblood$elm_color_extra$Color_Convert$cssColorString,
+		'rgb',
+		{
+			ctor: '::',
+			_0: _elm_lang$core$Basics$toString(red),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$core$Basics$toString(green),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$core$Basics$toString(blue),
+					_1: {ctor: '[]'}
+				}
+			}
+		});
+};
+var _eskimoblood$elm_color_extra$Color_Convert$XYZ = F3(
+	function (a, b, c) {
+		return {x: a, y: b, z: c};
+	});
+var _eskimoblood$elm_color_extra$Color_Convert$Lab = F3(
+	function (a, b, c) {
+		return {l: a, a: b, b: c};
+	});
+var _eskimoblood$elm_color_extra$Color_Interpolate$linear = F3(
+	function (t, i1, i2) {
+		return i1 + ((i2 - i1) * t);
+	});
+var _eskimoblood$elm_color_extra$Color_Interpolate$degree360 = _elm_lang$core$Basics$degrees(360);
+var _eskimoblood$elm_color_extra$Color_Interpolate$degree180 = _elm_lang$core$Basics$degrees(180);
+var _eskimoblood$elm_color_extra$Color_Interpolate$interpolate = F4(
+	function (space, cl1, cl2, t) {
+		var i = _eskimoblood$elm_color_extra$Color_Interpolate$linear(t);
+		var _p0 = space;
+		switch (_p0.ctor) {
+			case 'RGB':
+				var cl2_ = _elm_lang$core$Color$toRgb(cl2);
+				var cl1_ = _elm_lang$core$Color$toRgb(cl1);
+				return A4(
+					_elm_lang$core$Color$rgba,
+					_elm_lang$core$Basics$round(
+						A2(
+							i,
+							_elm_lang$core$Basics$toFloat(cl1_.red),
+							_elm_lang$core$Basics$toFloat(cl2_.red))),
+					_elm_lang$core$Basics$round(
+						A2(
+							i,
+							_elm_lang$core$Basics$toFloat(cl1_.green),
+							_elm_lang$core$Basics$toFloat(cl2_.green))),
+					_elm_lang$core$Basics$round(
+						A2(
+							i,
+							_elm_lang$core$Basics$toFloat(cl1_.blue),
+							_elm_lang$core$Basics$toFloat(cl2_.blue))),
+					A2(i, cl1_.alpha, cl2_.alpha));
+			case 'HSL':
+				var cl2_ = _elm_lang$core$Color$toHsl(cl2);
+				var h2 = cl2_.hue;
+				var cl1_ = _elm_lang$core$Color$toHsl(cl1);
+				var h1 = cl1_.hue;
+				var dH = ((_elm_lang$core$Native_Utils.cmp(h2, h1) > 0) && (_elm_lang$core$Native_Utils.cmp(h2 - h1, _eskimoblood$elm_color_extra$Color_Interpolate$degree180) > 0)) ? ((h2 - h1) + _eskimoblood$elm_color_extra$Color_Interpolate$degree360) : (((_elm_lang$core$Native_Utils.cmp(h2, h1) < 0) && (_elm_lang$core$Native_Utils.cmp(h1 - h2, _eskimoblood$elm_color_extra$Color_Interpolate$degree180) > 0)) ? ((h2 + _eskimoblood$elm_color_extra$Color_Interpolate$degree360) - h1) : (h2 - h1));
+				return A4(
+					_elm_lang$core$Color$hsla,
+					h1 + (t * dH),
+					A2(i, cl1_.saturation, cl2_.saturation),
+					A2(i, cl1_.lightness, cl2_.lightness),
+					A2(i, cl1_.alpha, cl2_.alpha));
+			default:
+				var lab2 = _eskimoblood$elm_color_extra$Color_Convert$colorToLab(cl2);
+				var lab1 = _eskimoblood$elm_color_extra$Color_Convert$colorToLab(cl1);
+				return _eskimoblood$elm_color_extra$Color_Convert$labToColor(
+					{
+						l: A2(i, lab1.l, lab2.l),
+						a: A2(i, lab1.a, lab2.a),
+						b: A2(i, lab1.b, lab2.b)
+					});
+		}
+	});
+var _eskimoblood$elm_color_extra$Color_Interpolate$LAB = {ctor: 'LAB'};
+var _eskimoblood$elm_color_extra$Color_Interpolate$HSL = {ctor: 'HSL'};
+var _eskimoblood$elm_color_extra$Color_Interpolate$RGB = {ctor: 'RGB'};
 var _evancz$elm_graphics$Native_Element = function()
 {
 
@@ -12965,6 +13493,8 @@ var _evancz$elm_graphics$Collage$ngon = F2(
 				f,
 				A2(_elm_lang$core$List$range, 0, n - 1)));
 	});
+var _user$project$Constants_World$maxStartingHealth = 5;
+var _user$project$Constants_World$minStartingHealth = 3;
 var _user$project$Constants_World$initResources = 5;
 var _user$project$Constants_World$initDwarves = 3;
 var _user$project$Constants_World$worldHeight = 12;
@@ -13257,6 +13787,23 @@ var _user$project$ActOnGoal$actOnGoal = F2(
 				return _user$project$ActOnGoal$moveRandomly(dwarf);
 		}
 	});
+var _user$project$Constants_Goal$initialGoals = {
+	ctor: '::',
+	_0: {ctor: '_Tuple2', _0: 10, _1: _user$project$Types$Sleep},
+	_1: {
+		ctor: '::',
+		_0: {ctor: '_Tuple2', _0: 10, _1: _user$project$Types$Idle},
+		_1: {
+			ctor: '::',
+			_0: {ctor: '_Tuple2', _0: 3, _1: _user$project$Types$FindFood},
+			_1: {
+				ctor: '::',
+				_0: {ctor: '_Tuple2', _0: 2, _1: _user$project$Types$FindBeer},
+				_1: {ctor: '[]'}
+			}
+		}
+	}
+};
 var _user$project$Constants_Goal$thresholds = {sleep: 24, findFood: 24, findBeer: 30, eat: 12, drink: 8, rage: 12, idle: 24};
 var _user$project$Constants_View$tileSize = 32;
 var _user$project$Constants_View$halfTileSize = (_user$project$Constants_View$tileSize / 2) | 0;
@@ -13275,7 +13822,7 @@ var _user$project$Generator_Common$position = A3(
 		}),
 	A2(_elm_lang$core$Random$int, 0, _user$project$Constants_World$worldWidth - 1),
 	A2(_elm_lang$core$Random$int, 0, _user$project$Constants_World$worldHeight - 1));
-var _user$project$Generator_Dwarf$hitpoints = A2(_elm_lang$core$Random$int, 3, 5);
+var _user$project$Generator_Dwarf$hitpoints = A2(_elm_lang$core$Random$int, _user$project$Constants_World$minStartingHealth, _user$project$Constants_World$maxStartingHealth);
 var _user$project$Generator_Dwarf$goal = _elm_community$random_extra$Random_Extra$frequency(
 	A2(
 		_elm_lang$core$List$map,
@@ -13289,23 +13836,7 @@ var _user$project$Generator_Dwarf$goal = _elm_community$random_extra$Random_Extr
 						{ticks: 0}))
 			};
 		},
-		{
-			ctor: '::',
-			_0: {ctor: '_Tuple2', _0: 10, _1: _user$project$Types$Sleep},
-			_1: {
-				ctor: '::',
-				_0: {ctor: '_Tuple2', _0: 10, _1: _user$project$Types$Idle},
-				_1: {
-					ctor: '::',
-					_0: {ctor: '_Tuple2', _0: 3, _1: _user$project$Types$FindFood},
-					_1: {
-						ctor: '::',
-						_0: {ctor: '_Tuple2', _0: 2, _1: _user$project$Types$FindBeer},
-						_1: {ctor: '[]'}
-					}
-				}
-			}
-		}));
+		_user$project$Constants_Goal$initialGoals));
 var _user$project$Generator_Dwarf$dwarf = A4(_elm_lang$core$Random$map3, _user$project$Types$Dwarf, _user$project$Generator_Common$position, _user$project$Generator_Dwarf$goal, _user$project$Generator_Dwarf$hitpoints);
 var _user$project$Generator_Resource$resourceAmount = A2(_elm_lang$core$Random$int, 1, 10);
 var _user$project$Generator_Resource$resourceKind = _elm_community$random_extra$Random_Extra$choices(
@@ -13322,7 +13853,7 @@ var _user$project$Generator_Resource$resourceKind = _elm_community$random_extra$
 			}
 		}));
 var _user$project$Generator_Resource$resource = A4(_elm_lang$core$Random$map3, _user$project$Types$Resource, _user$project$Generator_Common$position, _user$project$Generator_Resource$resourceKind, _user$project$Generator_Resource$resourceAmount);
-var _user$project$Helpers_World$decrementHitpoints = F2(
+var _user$project$Helpers_Dwarf$decrementHitpoints = F2(
 	function (amount, dwarf) {
 		return (_elm_lang$core$Native_Utils.cmp(dwarf.hitpoints, amount) < 1) ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(
 			_elm_lang$core$Native_Utils.update(
@@ -13637,7 +14168,7 @@ var _user$project$Update$punchDwarf = F3(
 										world,
 										A2(_user$project$Helpers_World$asDwarfIn, world.dwarves, punchedDwarf));
 								},
-								A2(_user$project$Helpers_World$decrementHitpoints, 1, whom))) : world;
+								A2(_user$project$Helpers_Dwarf$decrementHitpoints, 1, whom))) : world;
 					}),
 				A2(_user$project$Helpers_World$findById, whoId, world.dwarves),
 				A2(_user$project$Helpers_World$findById, whomId, world.dwarves)));
@@ -13880,6 +14411,12 @@ var _user$project$View_Dwarf$viewDwarfHp = function (_p3) {
 				_evancz$elm_graphics$Text$fromString(
 					A2(_elm_lang$core$String$repeat, _p4.hitpoints, '♥')))));
 };
+var _user$project$View_Dwarf$interpolateColor = F4(
+	function (from, to, current, max) {
+		var percent = _elm_lang$core$Basics$toFloat(current) / _elm_lang$core$Basics$toFloat(max);
+		return A4(_eskimoblood$elm_color_extra$Color_Interpolate$interpolate, _eskimoblood$elm_color_extra$Color_Interpolate$RGB, from, to, percent);
+	});
+var _user$project$View_Dwarf$rageColor = _elm_lang$core$Color$red;
 var _user$project$View_Dwarf$goalColor = function (goal) {
 	var _p5 = goal;
 	switch (_p5.ctor) {
@@ -13888,15 +14425,15 @@ var _user$project$View_Dwarf$goalColor = function (goal) {
 		case 'Sleep':
 			return _elm_lang$core$Color$blue;
 		case 'FindFood':
-			return _elm_lang$core$Color$darkPurple;
+			return A4(_user$project$View_Dwarf$interpolateColor, _elm_lang$core$Color$darkPurple, _user$project$View_Dwarf$rageColor, _p5._0.ticks, _user$project$Constants_Goal$thresholds.findFood);
 		case 'Eat':
 			return _elm_lang$core$Color$lightPurple;
 		case 'FindBeer':
-			return _elm_lang$core$Color$darkGreen;
+			return A4(_user$project$View_Dwarf$interpolateColor, _elm_lang$core$Color$darkGreen, _user$project$View_Dwarf$rageColor, _p5._0.ticks, _user$project$Constants_Goal$thresholds.findBeer);
 		case 'Drink':
 			return _elm_lang$core$Color$lightGreen;
 		default:
-			return _elm_lang$core$Color$red;
+			return _user$project$View_Dwarf$rageColor;
 	}
 };
 var _user$project$View_Dwarf$viewDwarfBg = function (_p6) {
@@ -13943,7 +14480,7 @@ var _user$project$View_Resource$viewResourceBg = function (_p1) {
 			_user$project$View_Resource$resourceColor(_p2.kind),
 			_evancz$elm_graphics$Collage$circle(_user$project$Constants_View$circleSize)));
 };
-var _user$project$View_Resource$viewResourceId = function (_p3) {
+var _user$project$View_Resource$viewResourceAmount = function (_p3) {
 	var _p4 = _p3;
 	return A2(
 		_evancz$elm_graphics$Collage$move,
@@ -13955,10 +14492,10 @@ var _user$project$View_Resource$viewResourceId = function (_p3) {
 				_evancz$elm_graphics$Text$fromString(
 					A2(
 						_elm_lang$core$Basics_ops['++'],
-						'ID: ',
-						_elm_lang$core$Basics$toString(_p4.id))))));
+						_elm_lang$core$Basics$toString(_p4.amount),
+						'x')))));
 };
-var _user$project$View_Resource$viewResourceKindAndAmount = function (_p5) {
+var _user$project$View_Resource$viewResourceKind = function (_p5) {
 	var _p6 = _p5;
 	return A2(
 		_evancz$elm_graphics$Collage$move,
@@ -13968,25 +14505,16 @@ var _user$project$View_Resource$viewResourceKindAndAmount = function (_p5) {
 				_evancz$elm_graphics$Text$color,
 				_elm_lang$core$Color$black,
 				_evancz$elm_graphics$Text$fromString(
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						_elm_lang$core$Basics$toString(_p6.kind),
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							' ',
-							A2(
-								_elm_lang$core$Basics_ops['++'],
-								_elm_lang$core$Basics$toString(_p6.amount),
-								'x')))))));
+					_elm_lang$core$Basics$toString(_p6.kind)))));
 };
 var _user$project$View_Resource$viewResourcesText = function (resources) {
 	return _elm_lang$core$List$concat(
 		{
 			ctor: '::',
-			_0: A2(_elm_lang$core$List$map, _user$project$View_Resource$viewResourceKindAndAmount, resources),
+			_0: A2(_elm_lang$core$List$map, _user$project$View_Resource$viewResourceKind, resources),
 			_1: {
 				ctor: '::',
-				_0: A2(_elm_lang$core$List$map, _user$project$View_Resource$viewResourceId, resources),
+				_0: A2(_elm_lang$core$List$map, _user$project$View_Resource$viewResourceAmount, resources),
 				_1: {ctor: '[]'}
 			}
 		});
