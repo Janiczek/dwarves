@@ -18,8 +18,8 @@ viewResourcesBg resources =
 
 viewResourcesText : List Resource -> List Form
 viewResourcesText resources =
-    [ resources |> List.map viewResourceKindAndAmount
-    , resources |> List.map viewResourceId
+    [ resources |> List.map viewResourceKind
+    , resources |> List.map viewResourceAmount
     ]
         |> List.concat
 
@@ -28,18 +28,18 @@ viewResourcesText resources =
 -- ONE RESOURCE
 
 
-viewResourceKindAndAmount : Resource -> Form
-viewResourceKindAndAmount { kind, amount, position } =
-    (toString kind ++ " " ++ toString amount ++ "x")
+viewResourceKind : Resource -> Form
+viewResourceKind { kind, position } =
+    toString kind
         |> T.fromString
         |> T.color Color.black
         |> C.text
         |> C.move (tilifyTop position)
 
 
-viewResourceId : Resource -> Form
-viewResourceId { id, position } =
-    ("ID: " ++ toString id)
+viewResourceAmount : Resource -> Form
+viewResourceAmount { amount, position } =
+    (toString amount ++ "x")
         |> T.fromString
         |> T.color Color.black
         |> C.text

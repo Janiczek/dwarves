@@ -14,6 +14,10 @@ resource =
         resourceAmount
 
 
+
+-- COMPONENTS
+
+
 resourceKind : Generator ResourceKind
 resourceKind =
     [ Beer, Food ]

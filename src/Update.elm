@@ -5,6 +5,7 @@ import Cmd.Extra exposing (..)
 import Constants.World exposing (..)
 import Generator.Dwarf as Generator
 import Generator.Resource as Generator
+import Helpers.Dwarf exposing (..)
 import Helpers.World exposing (..)
 import Helpers.XY exposing (..)
 import List.Extra as List
@@ -31,7 +32,8 @@ init =
 
 subscriptions : World -> Sub Msg
 subscriptions world =
-    Time.every (200 * Time.millisecond) (always Tick)
+    Time.every (200 * Time.millisecond)
+        (always Tick)
 
 
 update : Msg -> World -> ( World, Cmd Msg )

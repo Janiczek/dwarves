@@ -42,12 +42,3 @@ asDwarfIn dwarves dwarf =
 asDwarvesIn : World -> List Dwarf -> World
 asDwarvesIn world dwarves =
     { world | dwarves = dwarves }
-
-
-decrementHitpoints : Int -> Dwarf -> Maybe Dwarf
-decrementHitpoints amount dwarf =
-    if dwarf.hitpoints <= amount then
-        -- dies
-        Nothing
-    else
-        Just { dwarf | hitpoints = dwarf.hitpoints - amount }

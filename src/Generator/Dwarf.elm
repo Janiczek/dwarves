@@ -1,5 +1,7 @@
 module Generator.Dwarf exposing (dwarf)
 
+import Constants.Goal exposing (..)
+import Constants.World exposing (..)
 import Generator.Common exposing (..)
 import Random exposing (Generator)
 import Random.Extra as Random
@@ -14,13 +16,13 @@ dwarf =
         hitpoints
 
 
+
+-- COMPONENTS
+
+
 goal : Generator Goal
 goal =
-    [ ( 10, Sleep )
-    , ( 10, Idle )
-    , ( 3, FindFood )
-    , ( 2, FindBeer )
-    ]
+    initialGoals
         |> List.map
             (\( freq, goal ) ->
                 ( freq, Random.constant (goal { ticks = 0 }) )
@@ -30,4 +32,6 @@ goal =
 
 hitpoints : Generator Int
 hitpoints =
-    Random.int 3 5
+    Random.int
+        minStartingHealth
+        maxStartingHealth

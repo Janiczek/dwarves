@@ -1,5 +1,7 @@
 module Constants.Goal exposing (..)
 
+import Types exposing (..)
+
 
 thresholds :
     { drink : Int
@@ -19,3 +21,12 @@ thresholds =
     , rage = 12
     , idle = 24
     }
+
+
+initialGoals : List ( Float, Duration -> Goal )
+initialGoals =
+    [ ( 10, Sleep )
+    , ( 10, Idle )
+    , ( 3, FindFood )
+    , ( 2, FindBeer )
+    ]

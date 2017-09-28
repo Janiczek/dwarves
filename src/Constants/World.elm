@@ -19,3 +19,13 @@ initDwarves =
 initResources : Int
 initResources =
     5
+
+
+minStartingHealth : Int
+minStartingHealth =
+    3
+
+
+maxStartingHealth : Int
+maxStartingHealth =
+    5

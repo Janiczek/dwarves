@@ -127,6 +127,8 @@ initDuration =
     { ticks = 0 }
 
 
+{-| Based on the amount of ticks spent in this state, with some probability stay in it or go to another state as per the list of possible transitions.
+-}
 continueWithPossibilityOfChange :
     (Duration -> Goal)
     -> Int

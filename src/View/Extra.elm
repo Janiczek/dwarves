@@ -2,15 +2,16 @@ module View.Extra exposing (..)
 
 import Collage as C exposing (Form)
 import Constants.View exposing (..)
-import Transform as TT
+import Transform as T
+import Types exposing (..)
 
 
-tilify : ( Int, Int ) -> ( Float, Float )
+tilify : XY -> ( Float, Float )
 tilify ( x, y ) =
     ( toFloat (x * tileSize), toFloat (y * tileSize) )
 
 
-tilifyBottom : ( Int, Int ) -> ( Float, Float )
+tilifyBottom : XY -> ( Float, Float )
 tilifyBottom position =
     let
         ( pxX, pxY ) =
@@ -19,7 +20,7 @@ tilifyBottom position =
         ( pxX, pxY - (toFloat tileSize) / 4 )
 
 
-tilifyTop : ( Int, Int ) -> ( Float, Float )
+tilifyTop : XY -> ( Float, Float )
 tilifyTop position =
     let
         ( pxX, pxY ) =
@@ -33,7 +34,7 @@ fixCoordinateSpace formLists =
     formLists
         |> List.concat
         |> C.groupTransform
-            (TT.translation
+            (T.translation
                 (minusHalfWidth + toFloat halfTileSize)
                 (minusHalfHeight + toFloat halfTileSize)
             )

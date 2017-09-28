@@ -2,6 +2,7 @@ module View.Dwarf exposing (..)
 
 import Collage as C exposing (Form)
 import Color exposing (Color)
+import Color.Interpolate as Color exposing (Space(RGB))
 import Constants.Goal exposing (thresholds)
 import Constants.View exposing (..)
 import Text as T
@@ -39,7 +40,6 @@ viewDwarfBg { goal, position } =
 
 goalColor : Goal -> Color
 goalColor goal =
-    -- TODO interpolate colors based on ticks?
     case goal of
         Idle _ ->
             Color.black
@@ -47,20 +47,42 @@ goalColor goal =
         Sleep _ ->
             Color.blue
 
-        FindFood _ ->
-            Color.darkPurple
+        FindFood { ticks } ->
+            interpolateColor
+                Color.darkPurple
+                rageColor
+                ticks
+                thresholds.findFood
 
         Eat _ ->
             Color.lightPurple
 
-        FindBeer _ ->
-            Color.darkGreen
+        FindBeer { ticks } ->
+            interpolateColor
+                Color.darkGreen
+                rageColor
+                ticks
+                thresholds.findBeer
 
         Drink _ ->
             Color.lightGreen
 
         Rage _ ->
-            Color.red
+            rageColor
+
+
+rageColor : Color
+rageColor =
+    Color.red
+
+
+interpolateColor : Color -> Color -> Int -> Int -> Color
+interpolateColor from to current max =
+    let
+        percent =
+            toFloat current / toFloat max
+    in
+        Color.interpolate RGB from to percent
 
 
 viewDwarfHp : Dwarf -> Form
