@@ -32,8 +32,16 @@ type alias HasPosition a =
     { a | position : XY }
 
 
+type alias HasId a =
+    { a | id : Id }
+
+
 type alias XY =
     ( Int, Int )
+
+
+type alias XYDelta =
+    XY
 
 
 type Goal
@@ -60,7 +68,7 @@ type Msg
     | Tick
     | UpdateDwarf ( Dwarf, List Msg, Goal )
       -- "world changes"
-    | MoveDwarf Id XY
+    | MoveDwarf Id XYDelta
     | PunchDwarf Id Id
     | DecrementResource Id Int
     | IncrementResource Id Int

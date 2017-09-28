@@ -1,4 +1,4 @@
-module Constants.Update exposing (..)
+module Constants.Goal exposing (..)
 
 
 thresholds :

@@ -2,7 +2,7 @@ module View.Dwarf exposing (..)
 
 import Collage as C exposing (Form)
 import Color exposing (Color)
-import Constants.Update exposing (thresholds)
+import Constants.Goal exposing (thresholds)
 import Constants.View exposing (..)
 import Text as T
 import Types exposing (..)

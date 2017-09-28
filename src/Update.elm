@@ -1,14 +1,18 @@
 module Update exposing (init, update, subscriptions)
 
-import Cmd exposing (..)
+import ActOnGoal exposing (..)
 import Cmd.Extra exposing (..)
 import Constants.World exposing (..)
+import Generator.Dwarf as Generator
+import Generator.Resource as Generator
+import Helpers.World exposing (..)
+import Helpers.XY exposing (..)
 import List.Extra as List
 import Random exposing (Generator)
+import Random.Extra as Random
 import Time
 import Types exposing (..)
-import Update.Dwarf exposing (updatedDwarfGenerator)
-import Update.Extra exposing (..)
+import Update.Goal exposing (nextGoal)
 
 
 init : ( World, Cmd Msg )
@@ -125,7 +129,7 @@ updateDwarf ( dwarf, changes, goal ) world =
 moveDwarf : Id -> XY -> World -> World
 moveDwarf dwarfId xyMove world =
     world.dwarves
-        |> findDwarf dwarfId
+        |> findById dwarfId
         |> Maybe.map
             (\d ->
                 d
@@ -134,18 +138,6 @@ moveDwarf dwarfId xyMove world =
                     |> asDwarvesIn world
             )
         |> Maybe.withDefault world
-
-
-findDwarf : Id -> List Dwarf -> Maybe Dwarf
-findDwarf dwarfId dwarves =
-    dwarves
-        |> List.find (\d -> d.id == dwarfId)
-
-
-findResource : Id -> List Resource -> Maybe Resource
-findResource resourceId resources =
-    resources
-        |> List.find (\r -> r.id == resourceId)
 
 
 punchDwarf : Id -> Id -> World -> World
@@ -169,24 +161,15 @@ punchDwarf whoId whomId world =
             else
                 world
         )
-        (world.dwarves |> findDwarf whoId)
-        (world.dwarves |> findDwarf whomId)
+        (world.dwarves |> findById whoId)
+        (world.dwarves |> findById whomId)
         |> Maybe.withDefault world
-
-
-decrementHitpoints : Int -> Dwarf -> Maybe Dwarf
-decrementHitpoints amount dwarf =
-    if dwarf.hitpoints <= amount then
-        -- dies
-        Nothing
-    else
-        Just { dwarf | hitpoints = dwarf.hitpoints - amount }
 
 
 decrementResource : Id -> Int -> World -> World
 decrementResource resourceId amount world =
     world.resources
-        |> findResource resourceId
+        |> findById resourceId
         |> Maybe.map
             (\resource ->
                 if resource.amount <= amount then
@@ -204,7 +187,7 @@ decrementResource resourceId amount world =
 incrementResource : Id -> Int -> World -> World
 incrementResource resourceId amount world =
     world.resources
-        |> findResource resourceId
+        |> findById resourceId
         |> Maybe.map
             (\resource ->
                 { resource | amount = resource.amount + amount }
@@ -214,49 +197,32 @@ incrementResource resourceId amount world =
         |> Maybe.withDefault world
 
 
-removeDwarf : Dwarf -> List Dwarf -> List Dwarf
-removeDwarf dwarf dwarves =
-    dwarves
-        |> List.filter (\d -> d.id /= dwarf.id)
+
+-- CMDS
 
 
-removeResource : Resource -> List Resource -> List Resource
-removeResource resource resources =
-    resources
-        |> List.filter (\r -> r.id /= resource.id)
-
-
-asResourceIn : List Resource -> Resource -> List Resource
-asResourceIn resources resource =
-    resources
-        |> List.replaceIf (\r -> r.id == resource.id) resource
-
-
-asResourcesIn : World -> List Resource -> World
-asResourcesIn world resources =
-    { world | resources = resources }
-
-
-asDwarfIn : List Dwarf -> Dwarf -> List Dwarf
-asDwarfIn dwarves dwarf =
-    dwarves
-        |> List.replaceIf (\d -> d.id == dwarf.id) dwarf
-
-
-asDwarvesIn : World -> List Dwarf -> World
-asDwarvesIn world dwarves =
-    { world | dwarves = dwarves }
-
-
-move : XY -> HasPosition a -> HasPosition a
-move ( dx, dy ) thing =
+genInitData : { dwarves : Int, resources : Int } -> Cmd Msg
+genInitData counts =
     let
-        ( x, y ) =
-            thing.position
+        dwarves =
+            Generator.dwarf
+                |> Random.list counts.dwarves
 
-        newPosition =
-            ( x + dx |> clamp 0 (worldWidth - 1)
-            , y + dy |> clamp 0 (worldHeight - 1)
-            )
+        resources =
+            Generator.resource
+                |> Random.list counts.resources
     in
-        { thing | position = newPosition }
+        Random.map2 (,) dwarves resources
+            |> Random.generate GeneratedInitData
+
+
+
+-- GENERATORS
+
+
+updatedDwarfGenerator : World -> Dwarf -> Generator ( Dwarf, List Msg, Goal )
+updatedDwarfGenerator world dwarf =
+    Random.map3 (,,)
+        (Random.constant dwarf)
+        (actOnGoal dwarf world)
+        (nextGoal dwarf world)

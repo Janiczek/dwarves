@@ -1,10 +1,10 @@
 module Update.Goal exposing (nextGoal)
 
-import Constants.Update exposing (thresholds)
+import Constants.Goal exposing (thresholds)
+import Helpers.WorldQuery exposing (..)
 import Random exposing (Generator)
 import Random.Extra as Random
 import Types exposing (..)
-import Update.Extra exposing (isDwarfNextTo)
 
 
 nextGoal : Dwarf -> World -> Generator Goal
