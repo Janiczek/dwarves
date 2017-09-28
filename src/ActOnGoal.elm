@@ -65,19 +65,20 @@ decrementClosest kind dwarf world =
 
 moveTowardsAndPunchDwarf : Dwarf -> World -> Generator (List Msg)
 moveTowardsAndPunchDwarf dwarf world =
-    dwarfClosestToDwarf dwarf world
-        |> Maybe.map
-            (\toBePunched ->
-                if isNextTo toBePunched.position dwarf.position then
-                    [ PunchDwarf dwarf.id toBePunched.id ]
-                else
-                    [ dwarf.position
-                        |> deltaMovingCloserTo toBePunched.position
-                        |> MoveDwarf dwarf.id
-                    ]
+    case dwarfClosestToDwarf dwarf world of
+        Nothing ->
+            moveRandomly dwarf
+
+        Just toBePunched ->
+            (if isNextTo toBePunched.position dwarf.position then
+                [ PunchDwarf dwarf.id toBePunched.id ]
+             else
+                [ dwarf.position
+                    |> deltaMovingCloserTo toBePunched.position
+                    |> MoveDwarf dwarf.id
+                ]
             )
-        |> Maybe.withDefault []
-        |> Random.constant
+                |> Random.constant
 
 
 moveRandomly : Dwarf -> Generator (List Msg)
