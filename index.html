@@ -13709,27 +13709,25 @@ var _user$project$ActOnGoal$moveRandomly = function (dwarf) {
 };
 var _user$project$ActOnGoal$moveTowardsAndPunchDwarf = F2(
 	function (dwarf, world) {
-		return _elm_community$random_extra$Random_Extra$constant(
-			A2(
-				_elm_lang$core$Maybe$withDefault,
-				{ctor: '[]'},
-				A2(
-					_elm_lang$core$Maybe$map,
-					function (toBePunched) {
-						return A2(_user$project$Helpers_XY$isNextTo, toBePunched.position, dwarf.position) ? {
-							ctor: '::',
-							_0: A2(_user$project$Types$PunchDwarf, dwarf.id, toBePunched.id),
-							_1: {ctor: '[]'}
-						} : {
-							ctor: '::',
-							_0: A2(
-								_user$project$Types$MoveDwarf,
-								dwarf.id,
-								A2(_user$project$Helpers_XY$deltaMovingCloserTo, toBePunched.position, dwarf.position)),
-							_1: {ctor: '[]'}
-						};
-					},
-					A2(_user$project$Helpers_WorldQuery$dwarfClosestToDwarf, dwarf, world))));
+		var _p0 = A2(_user$project$Helpers_WorldQuery$dwarfClosestToDwarf, dwarf, world);
+		if (_p0.ctor === 'Nothing') {
+			return _user$project$ActOnGoal$moveRandomly(dwarf);
+		} else {
+			var _p1 = _p0._0;
+			return _elm_community$random_extra$Random_Extra$constant(
+				A2(_user$project$Helpers_XY$isNextTo, _p1.position, dwarf.position) ? {
+					ctor: '::',
+					_0: A2(_user$project$Types$PunchDwarf, dwarf.id, _p1.id),
+					_1: {ctor: '[]'}
+				} : {
+					ctor: '::',
+					_0: A2(
+						_user$project$Types$MoveDwarf,
+						dwarf.id,
+						A2(_user$project$Helpers_XY$deltaMovingCloserTo, _p1.position, dwarf.position)),
+					_1: {ctor: '[]'}
+				});
+		}
 	});
 var _user$project$ActOnGoal$decrementClosest = F3(
 	function (kind, dwarf, world) {
@@ -13750,8 +13748,8 @@ var _user$project$ActOnGoal$decrementClosest = F3(
 	});
 var _user$project$ActOnGoal$moveTowardsResource = F3(
 	function (kind, dwarf, world) {
-		var _p0 = A3(_user$project$Helpers_WorldQuery$resourceClosestToDwarf, kind, dwarf, world);
-		if (_p0.ctor === 'Nothing') {
+		var _p2 = A3(_user$project$Helpers_WorldQuery$resourceClosestToDwarf, kind, dwarf, world);
+		if (_p2.ctor === 'Nothing') {
 			return _user$project$ActOnGoal$moveRandomly(dwarf);
 		} else {
 			return _elm_community$random_extra$Random_Extra$constant(
@@ -13760,7 +13758,7 @@ var _user$project$ActOnGoal$moveTowardsResource = F3(
 					_0: A2(
 						_user$project$Types$MoveDwarf,
 						dwarf.id,
-						A2(_user$project$Helpers_XY$deltaMovingCloserTo, _p0._0.position, dwarf.position)),
+						A2(_user$project$Helpers_XY$deltaMovingCloserTo, _p2._0.position, dwarf.position)),
 					_1: {ctor: '[]'}
 				});
 		}
@@ -13769,8 +13767,8 @@ var _user$project$ActOnGoal$doNothing = _elm_community$random_extra$Random_Extra
 	{ctor: '[]'});
 var _user$project$ActOnGoal$actOnGoal = F2(
 	function (dwarf, world) {
-		var _p1 = dwarf.goal;
-		switch (_p1.ctor) {
+		var _p3 = dwarf.goal;
+		switch (_p3.ctor) {
 			case 'Sleep':
 				return _user$project$ActOnGoal$doNothing;
 			case 'FindFood':
