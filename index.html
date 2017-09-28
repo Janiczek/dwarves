@@ -13812,6 +13812,16 @@ var _user$project$Update$init = A2(
 		resources: {ctor: '[]'},
 		nextId: 0
 	});
+var _user$project$View_Extra$fixCoordinateSpace = function (formLists) {
+	return _elm_lang$core$List$singleton(
+		A2(
+			_evancz$elm_graphics$Collage$groupTransform,
+			A2(
+				_evancz$elm_graphics$Transform$translation,
+				_user$project$Constants_View$minusHalfWidth + _elm_lang$core$Basics$toFloat(_user$project$Constants_View$halfTileSize),
+				_user$project$Constants_View$minusHalfHeight + _elm_lang$core$Basics$toFloat(_user$project$Constants_View$halfTileSize)),
+			_elm_lang$core$List$concat(formLists)));
+};
 var _user$project$View_Extra$tilify = function (_p0) {
 	var _p1 = _p0;
 	return {
@@ -14017,31 +14027,24 @@ var _user$project$View_Resource$viewResourcesBg = function (resources) {
 	return A2(_elm_lang$core$List$map, _user$project$View_Resource$viewResourceBg, resources);
 };
 var _user$project$View$viewEntities = function (world) {
-	return _elm_lang$core$List$singleton(
-		A2(
-			_evancz$elm_graphics$Collage$groupTransform,
-			A2(
-				_evancz$elm_graphics$Transform$translation,
-				_user$project$Constants_View$minusHalfWidth + _elm_lang$core$Basics$toFloat(_user$project$Constants_View$halfTileSize),
-				_user$project$Constants_View$minusHalfHeight + _elm_lang$core$Basics$toFloat(_user$project$Constants_View$halfTileSize)),
-			_elm_lang$core$List$concat(
-				{
+	return _user$project$View_Extra$fixCoordinateSpace(
+		{
+			ctor: '::',
+			_0: _user$project$View_Dwarf$viewDwarvesBg(world.dwarves),
+			_1: {
+				ctor: '::',
+				_0: _user$project$View_Resource$viewResourcesBg(world.resources),
+				_1: {
 					ctor: '::',
-					_0: _user$project$View_Dwarf$viewDwarvesBg(world.dwarves),
+					_0: _user$project$View_Resource$viewResourcesText(world.resources),
 					_1: {
 						ctor: '::',
-						_0: _user$project$View_Resource$viewResourcesBg(world.resources),
-						_1: {
-							ctor: '::',
-							_0: _user$project$View_Resource$viewResourcesText(world.resources),
-							_1: {
-								ctor: '::',
-								_0: _user$project$View_Dwarf$viewDwarvesText(world.dwarves),
-								_1: {ctor: '[]'}
-							}
-						}
+						_0: _user$project$View_Dwarf$viewDwarvesText(world.dwarves),
+						_1: {ctor: '[]'}
 					}
-				})));
+				}
+			}
+		});
 };
 var _user$project$View$viewBg = A2(
 	_evancz$elm_graphics$Collage$filled,
